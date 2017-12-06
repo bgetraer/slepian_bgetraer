@@ -1,3 +1,3 @@
 # slepian_bgetraer
 
-Matlab code and other files for my Fall 2017 Junior Paper
+This directory contains MATLAB functions and scripts complementing the slepian_alpha, bravo, etc suite fount at https://github.com/csdms-contrib modified and written by bgetraer@princeton.edu, FALL 2017.
