@@ -1,3 +1,3 @@
-# jp01
+# slepian_bgetraer
 
-Code and other files for my Fall 2017 Junior Paper
+Matlab code and other files for my Fall 2017 Junior Paper
