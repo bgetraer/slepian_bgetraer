@@ -11,13 +11,11 @@ c = [centers(1,location_index);centers(2,location_index)];
 
 %% Set up spherical harmonic coefficients
 % import the GRACE spherical harmonic coefficients
-[potcoffs,cal_errors,thedates]=grace2plmt('JPL','RL05','SD',1);
-%% isolate a single month to test
-firstcoff = squeeze(potcoffs(1,:,:));
-[f1,V1,N1,MTAP,C] = plm2slep(firstcoff,r,L,c(1),90-c(2));
+[potcoffs,cal_errors,thedates]=grace2plmt_inprogress('CSR','RL05','SD',0,96);
 
 %% transform GRACE harmonics into Slepian expansion coefficients
-[slepcoffs,calerrors,thedates,TH,G,CC,V2,N2] = grace2slept('CSRRL05',r,[],L,c(1),90-c(2),[],[],'SD',1);
+[slepcoffs,calerrors,thedates,TH,G,CC,V2,N2] = grace2slept_inprogress('CSRRL05_96','greenland',[],90,[],[],[],'N','SD',0);
+%%
 f2=slepcoffs(1,:)';
 % Slepian expansion coefficients to the new basis
 Gfalpha = G.*slepcoffs(1,:);

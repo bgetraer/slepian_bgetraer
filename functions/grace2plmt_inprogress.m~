@@ -1,9 +1,8 @@
 function varargout=grace2plmt_inprogress(Pcenter,Rlevel,units,forcenew,Ldata)
 % [potcoffs,cal_errors,thedates]=GRACE2PLMT_INPROGRESS(Pcenter,Rlevel,units,forcenew,Ldata)
 %
-% IN PROGRESS: edits to this function were begun by bgetraer@princeton.edu in
+% IN PROGRESS: edits to this script were begun by bgetraer@princeton.edu in
 % order to maintain compatibility with available data. 
-% See GRACE2SLEPT_INPROGRESS for similar issues and resolutions.
 % Issues:
 %   incorporate the degree 96 coefficients offered by CSR RL05
 %   acknowledge JPL Pcenter in header
@@ -14,13 +13,13 @@ function varargout=grace2plmt_inprogress(Pcenter,Rlevel,units,forcenew,Ldata)
 %   acknowledge JPL Pcenter in header
 %   print warning on JPL RL05.1 data that requires user acknowledgement
 %
-% This function reads in the Level-2 GRACE geoid products from the CSR, JPL or
+% This program reads in the Level-2 GRACE geoid products from the CSR, JPL or
 % GFZ data centers, does some processing, and saves them as a plmt matrix
 % in a .mat file.  In particular, the coefficients are reordered to our
 % prefered lmcosi format, they are referenced to the WGS84 ellipsoid, 
 % the C2,0 coefficients are replaced with more accurate measurements from
 % satellite laser ranging (see Cheng et al., 2013), and the degree one coefficients are 
-% substituted with those from Swenson et al. (2008). You have the option 
+% substituted with those from Swenson et al. (2008).  You have the option 
 % of leaving them as geopotential 
 % or converting them to surface mass density using the method of 
 % Wahr et al. 1998, based on Love numbers (see PLM2POT).
@@ -113,13 +112,13 @@ elseif strcmp(Pcenter,'JPL') && strcmp(Rlevel,'RL05'),defval('Ldata',90);
     if Ldata~=90&&Ldata~=60
         error('Bandwidth for %s %s files must be 90(default) or 60',Pcenter,Rlevel);
     end
-    % bgetraer: here is my warning on the JPL RL05.1 issue
     fprintf('[\b%s\n%s\n%s\n]\b%s\n',...
         'WARNING: JPL RL05 is not of uniform bandwidth for the entire period of record.',...
         '90x90 2002-Sept 2014, 60x60 Oct 2014-2017',...
         sprintf('Returning data structure of bandwidth %ix%i',Ldata,Ldata),...
         'Press any key to continue')
     pause
+    error('test')
 end
 
 % Where the original data files are kept: in IFILES/GRACE/originals
