@@ -27,6 +27,7 @@ function varargout=plotplm(data,lon,lat,meth,degres,th0,sres,cax)
 %                8  Like 2, but with KELICOL colormap
 %                9  Like 4, but with KELICOL colormap
 %                10 Like 8, but only Greenland with custom axes
+%                11 Like 2, but only Greenland with custom axes
 % degres         Resolution in degree (checked for Nyquist) [default: Nyquist]
 % th0            Plot small circle at colatitude th0, in degrees
 % sres           0 Take default for polar projection [default]
@@ -55,13 +56,14 @@ function varargout=plotplm(data,lon,lat,meth,degres,th0,sres,cax)
 % Last modified by fjsimons-at-alum.mit.edu, 02/20/2012
 % Last modified by charig-at-princeton.edu, 05/14/2015
 % Last modified by bgetraer@princeton.edu, 12/03/2017
+%   added plotting options
 
 defval('meth',1)
 defval('degres',[])
 defval('th0',[])
 defval('sres',0)
 
-if (size(data,2)==4 | size(data,2)==6) & meth<11 & meth~=3
+if (size(data,2)==4 | size(data,2)==6) & meth<12 & meth~=3
     [data,lon,lat]=plm2xyz(data,degres);
     lon=lon*pi/180;
     lat=lat*pi/180;
@@ -354,6 +356,67 @@ switch meth
 %         % axis labeling
 %         text(map_r+0.055,-0.5*map_r,1,'Longitude','horizontalalignment','center','rotation',45);
 %         text(0.5*map_r,0.05,1,'Colatitude','horizontalalignment','center','rotation',-45);
+    case 11
+        % Make sphere for the data
+        defval('lon',linspace(0,360,100)/180*pi);
+        defval('lat',linspace(90,-90,100)/180*pi);
+        [lon,lat]=meshgrid(lon,lat);
+        rads=ones(size(lat));
+        [x,y,z]=sph2cart(lon,lat,rads);
+        % Color saturation
+        defval('cax',minmax(data(:)));
+        data(data>cax(end))=cax(end);
+        data(data<cax(1))=cax(1);
+        surface(x,y,z,'FaceColor','texture','Cdata',data);
+        hold on
+        % Plot the continents
+        [axlim,handl,XYZ]=plotcont([0 90],[360 -90],3);
+        delete(handl)
+        hold on
+        ch=plot3(XYZ(:,1),XYZ(:,2),XYZ(:,3),'k-','LineWidth',1.5);
+        axis image
+        shading flat
+        view(140,30)
+        set(gca,'color',[.9 .9 .9]-.1)
+        axis('off')
+        ph=[];
+        
+        % Here I improvise a grid
+        lon_degree = 6;
+        lat_degree = lon_degree/2;
+        sphere(360/lon_degree);
+        % OK here we focus in on Greenland
+        view(45,90)
+        map_r = 0.4;
+        axis([-0 map_r -map_r 0])
+        % turn on axis, turn off ticks
+        axis on
+        set(gca,'xtick',[],'ytick',[])
+        
+        % longitude ticks
+        degy = (-7:0)*lon_degree;
+        degx = (0:7)*lon_degree;
+        y = [map_r*tan(deg2rad(degy))];
+        x = [map_r*tan(deg2rad(degx))];
+        xlab = strcat('$',num2str(-90+degx'),'^{\circ}$');
+        ylab = strcat('$',num2str(degy'),'^{\circ}$');
+        for i = 1:length(degy)
+            %ylabels
+            text(map_r+0.02,y(i),0,ylab(i,:),'interpreter','latex','horizontalalignment','center')
+            text(x(i),-(map_r+0.02),0,xlab(i,:),'interpreter','latex','horizontalalignment','center')
+        end
+        
+        % latitude ticks
+        degz = (0:7).*lat_degree;
+        x = sin(deg2rad(degz));
+        z = cos(deg2rad(degz));
+        for i = 1:length(degz)
+            text(x(i),0+0.01,0,strcat(num2str(degz(i)),'$^{\circ}$'),'interpreter','latex')
+        end
+        
+        % axis labeling
+        text(map_r+0.055,-0.5*map_r,1,'Longitude','horizontalalignment','center','rotation',45);
+        text(0.5*map_r,0.05,1,'Colatitude','horizontalalignment','center','rotation',-45);
     otherwise
         error('Not a valid method')
 end

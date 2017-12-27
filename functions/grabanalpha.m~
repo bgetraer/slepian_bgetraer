@@ -18,7 +18,6 @@ function [ lmcosi_mat,lmcosi_sum,alphaindex ] = grabanalpha(G,N,L,alphaindex,plo
 %                   3   Flat rectangular projection for entire globe
 %                   4, or ~=0 and 'greenland' was asked for
 %                           plot pretty for greenland
-%                   5   like 4 but default colormap
 %
 %OUTPUTS
 %   lmcosi_mat      A stack of standard spherical harmonic coefficients
@@ -84,8 +83,6 @@ switch plot
         plotplm(lmcosi_sum,[],[],9,.1)
     case 4
         plotplm(lmcosi_sum,[],[],10,.1)
-    case 5
-        plotplm(lmcosi_sum,[],[],11,.1)
     otherwise
         error('Not a valid plotting method')
 end

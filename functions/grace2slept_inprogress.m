@@ -1,6 +1,6 @@
-function varargout=grace2slept(Dataproduct,TH,XY_buffer,Lwindow,phi,theta,omega,J,units,forcenew)
-% [slepcoffs,calerrors,thedates,TH,G,CC,V]
-%                 =GRACE2SLEPT(Dataproduct,TH,XY_buffer,Lwindow,phi,theta,omega,J,units,forcenew)
+function varargout=grace2slept_inprogress(Dataproduct,TH,XY_buffer,Lwindow,phi,theta,omega,J,units,forcenew)
+% [slepcoffs,slepcalerrors,thedates,TH,G,CC,V]
+%                 =GRACE2SLEPT_INPROGRESS(Dataproduct,TH,XY_buffer,Lwindow,phi,theta,omega,J,units,forcenew)
 %
 % IN PROGRESS: edits to this function were begun by bgetraer@princeton.edu in
 % order to maintain compatibility with available data.  
@@ -12,7 +12,7 @@ function varargout=grace2slept(Dataproduct,TH,XY_buffer,Lwindow,phi,theta,omega,
 %       really is defaulted to 18.
 %   ddir1 is referencing a directory that is never used in the function
 % CURRENT SOLUTIONS:
-%   Throw error if JPL is requested
+%   Allow JPL RL05 to be requested, but throw warning as in GRACE2PLMT_INPROGRESS
 %   Allow new argument for Dataproduct that distinguishes bandwidth
 %   Call GRACE2PLMT_INPROGRESS 
 %   get rid of the old ddir1, and make ddir2 ddir1.
@@ -42,6 +42,8 @@ function varargout=grace2slept(Dataproduct,TH,XY_buffer,Lwindow,phi,theta,omega,
 %                  at the GeoForschungsZentrum Potsdam
 %               'GFZRL05' Release level 05 data from the data center
 %                  at the GeoForschungsZentrum Potsdam
+%               'JPLRL05' Release level 05 data from the data center
+%                  at the Jet Propulsion Laboratory
 % TH         Radius of the concentration region (degrees) OR
 %              'england', 'eurasia',  'namerica', 'australia', 'greenland'
 %              'africa', 'samerica', 'amazon', 'orinoco', in which case 
@@ -114,8 +116,15 @@ elseif strcmp(Dataproduct(1:7),'CSRRL05')
     elseif contains(Dataproduct,'60'),Ldata = 60;
     elseif contains(Dataproduct,'96'),Ldata = 96;
     end
-elseif strcmp(Pcenter,'JPL')
-    error('JPL not supported yet')
+elseif strcmp(Dataproduct,'JPLRL05'),Ldata = 90;
+    % bgetraer: here is my warning on the JPL RL05.1 issue
+    if Lwindow<=60, warning='<=';else warning='>';end
+    fprintf('[\b%s\n%s\n%s\n]\b%s\n',...
+        'WARNING: JPL RL05 is not of uniform bandwidth for the entire period of record.',...
+        '90x90 2002-Sept 2014, 60x60 Oct 2014-2017',...
+        sprintf('Bandwidth of requested expandsion is %s60',warning),...
+        'Press any key to continue')
+    pause
 end
 
 % Figure out if it's lowpass or bandpass
