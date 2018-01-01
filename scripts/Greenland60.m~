@@ -1,28 +1,72 @@
 %**************************************************************************
-% GREENLAND 96 - expand spherical harmonics of bandwidth L=96 into the
-% bandwidth L=90 slepian basis for Greenland.
+% GREENLAND 60 - expand spherical harmonics of bandwidth L=60 into the
+% bandwidth L=60 slepian basis for Greenland.
 %
 % NOTE: this script makes use of the functions GRACE2SLEPT_INPROGRESS and
 % GRACE2PLMT_INPROGRESS which are modified to handle the CSR RL05 96X96
 % data product.
 %
-% Last modified by bgetraer@princeton.edu, 12/25/2017
+% Last modified by bgetraer@princeton.edu, 12/28/2017
 %**************************************************************************
 addpath('/Users/benjamingetraer/Documents/JuniorPaper/slepian_bgetraer/functions')
 setworkspace('/Users/benjamingetraer/Documents/JuniorPaper/SH_Workspace');
 
 % load the spherical harmonic coefficients
-Ldata = 96; % bandwidth of the GRACE data
+Ldata = 60; % bandwidth of the GRACE data
 [dcoffs,sh_calerrors,~]=grace2plmt_inprogress('CSR','RL05','SD',0,Ldata);
-%% expand into the first N eigentapers of the Greenland 90x90 basis
-L = 90; % bandwidth of the basis into which we want to expand
+%% expand into the first N eigentapers of the Greenland 60x60 basis
+L = 60; % bandwidth of the basis into which we want to expand
 J = 'N';    % how many eigentapers we want
 [slepcoffs,slep_calerrors,thedates,TH,G,CC,V,N] = ...
-    grace2slept_inprogress('CSRRL05_96','greenland',[],90,[],[],[],J,'SD',0);
+    grace2slept_inprogress('CSRRL05_60','greenland',[],L,[],[],[],J,'SD',0);
 
-% lets try to reproduce the Figure 3 from Harig & Simons
-avgmasschange = (slepcoffs(monthnum(1,2004,thedates),:)-slepcoffs(monthnum(1,2003,thedates),:));
-avgmassint = integratebasis(G.*avgmasschange);
+%% The important bits in going from coefficients to integrated mass
+% basis60INT=integratebasis(G,'greenland'); %integrated contribution to a unit sphere
+area_scaling = 4*pi*fralmanac('a_EGM96','Earth')^2; %scale area on a unit sphere to Earth
+mass_scaling = 10^(-12); %scale kg/m^2 to Gt/m^2
+
+intmass = sum(basis60INT*area_scaling.*slepcoffs*mass_scaling,2); 
+figure(1)
+clf
+plot(thedates,intmass-mean(intmass))
+datetick
+title(sprintf('$$L=%i$$ Bandlimited GRACE Signal expanded into an $$\\alpha_{max}=%i$$ Greenland Slepian Basis',...
+    L,round(N)),'interpreter','latex','horizontalalignment','center');
+xlabel('Year')
+ylabel('Mass (Gt)')
+%% difference maps
+y1=2003;y2=2004;
+m1 = monthnum(1,y1,thedates);
+m2 = monthnum(1,y2,thedates);
+
+sh1 = squeeze(dcoffs(m1,:,:));
+sh2 = squeeze(dcoffs(m2,:,:));
+
+diff_coff = (slepcoffs(m1,:)-slepcoffs(m2,:));
+scaling = 1/10;  %kg/m^2=mmwe=1/10cmwe
+figure(1)
+clf
+plotslep(sum(G.*diff_coff.*scaling,2),1,[],.2,10)
+cax = caxis;
+colorbar
+figure(2)
+clf
+plotplm(difflmcosi(cat(3,sh1,sh2),scaling),[],[],10,.2)
+caxis(cax)
+colorbar
+%% remake figure S8
+y1=2003;y2=2004;
+m1 = monthnum(1,y1,thedates);
+m2 = monthnum(1,y2,thedates);
+
+diff_coff = (slepcoffs(m1,:)-slepcoffs(m2,:));
+scaling = 1/10;  %kg/m^2=mmwe=1/10cmwe
+figure(1)
+clf
+% plotslep(sum(G.*diff_coff.*scaling,2),1,[],.2,10)
+plotplm(difflmcosi(squeeze(dcoffs(m1,:,:)),squeeze(dcoffs(m2,:,:))),[],[],2,.2)
+% caxis([-2500,2500])
+colorbar
 
 %%
 m1 = monthnum(1,2003,thedates);
@@ -36,14 +80,7 @@ figure(2)
 clf
 plotplm(difflmcosi(squeeze(dcoffs(m1,:,:)),squeeze(dcoffs(m2,:,:))),[],[],11,.1)
 caxis(cax)
-%%
-radius = 6378137;
-realspherearea = eigfunINT*4*pi*radius^2;
-test = avgmasschange.*realspherearea*10^(-12) %it's in gigatonnes
-%% Here we go
-753
-plot(thedates,)
-datetick
+
 %%
 % %PLOTS
 % %% lets check out what some of those coefficients have been doing

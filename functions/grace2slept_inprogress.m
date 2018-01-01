@@ -230,7 +230,7 @@ end
 % it, make a new one (e.g. if you added extra months to the database).
 if exist(fnpl,'file')==2 && forcenew==0
      load(fnpl)
-     fprintf('%s loaded by GRACE2SLEPT_INPROGRESS',fnpl)
+     fprintf('%s loaded by GRACE2SLEPT_INPROGRESS\n',fnpl)
 else
     % bgetraer: here we are using the bandwidth using the system for 
     % GRACE2PLMT_INPROGRESS.
