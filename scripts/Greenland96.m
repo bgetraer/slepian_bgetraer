@@ -19,10 +19,22 @@ L = 90; % bandwidth of the basis into which we want to expand
 J = 'N';    % how many eigentapers we want
 [slepcoffs,slep_calerrors,thedates,TH,G,CC,V,N] = ...
     grace2slept_inprogress('CSRRL05_96','greenland',[],90,[],[],[],J,'SD',0);
+%% The important bits in going from coefficients to integrated mass
+% basis90INT=integratebasis(G,'greenland'); %integrated contribution to a unit sphere
+load('intslep_greenland_90_N');
+area_scaling = 4*pi*fralmanac('a_EGM96','Earth')^2; %scale area on a unit sphere to Earth
+mass_scaling = 10^(-12); %scale kg/m^2 to Gt/m^2
 
-% lets try to reproduce the Figure 3 from Harig & Simons
-avgmasschange = (slepcoffs(monthnum(1,2004,thedates),:)-slepcoffs(monthnum(1,2003,thedates),:));
-avgmassint = integratebasis(G.*avgmasschange);
+intmass90 = sum(basis90INT*area_scaling.*slepcoffs*mass_scaling,2); 
+%% Integrated Mass trend
+figure(1)
+clf
+plot(thedates,intmass90-mean(intmass90))
+datetick
+title(sprintf('$$L=%i$$ Bandlimited GRACE Signal expanded into an $$\\alpha_{max}=%i$$ Greenland Slepian Basis',...
+    L,round(N)),'interpreter','latex','horizontalalignment','center');
+xlabel('Year')
+ylabel('Mass (Gt)')
 
 %%
 m1 = monthnum(1,2003,thedates);
@@ -36,10 +48,6 @@ figure(2)
 clf
 plotplm(difflmcosi(squeeze(dcoffs(m1,:,:)),squeeze(dcoffs(m2,:,:))),[],[],11,.1)
 caxis(cax)
-%%
-radius = 6378137;
-realspherearea = eigfunINT*4*pi*radius^2;
-test = avgmasschange.*realspherearea*10^(-12) %it's in gigatonnes
 %% Here we go
 753
 plot(thedates,)
