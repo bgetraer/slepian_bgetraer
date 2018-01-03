@@ -35,6 +35,7 @@ J = 'N';    % how many eigentapers we want
 save(sprintf('%s/slep_greenland_%i_slepcoffs.mat',datadir,L),sprintf('slepcoffs%i',L)); %save coefficients
 
 % The important bits in going from coefficients to integrated mass
+
 % basis60INT=integratebasis(G,'greenland'); %integrated contribution to a unit sphere
 % save(sprintf('%s/intslep_greenland_%i_N.mat',sprintf('basis%iINT',L),L))  %save basis60INT
 load(sprintf('%s/intslep_greenland_%i_N.mat',datadir,L)) %load basis60INT
