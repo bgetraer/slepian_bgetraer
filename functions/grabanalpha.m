@@ -85,7 +85,7 @@ switch plot
     case 4
         plotplm(lmcosi_sum,[],[],10,.1)
     case 5
-        plotplm(lmcosi_sum,[],[],11,.1)
+        plotplm(lmcosi_sum,[],[],11,.2)
     otherwise
         error('Not a valid plotting method')
 end

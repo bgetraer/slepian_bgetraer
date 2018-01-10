@@ -28,6 +28,9 @@ greenlandalpha = [1 2 7 5];
 %% NOW PLOT IT ALL
 % choose 3d plotting projection
 plottype=2;
+% and colormap
+cmap = 'bluewhitered([],1)';
+
 
 %create dummy figure and pull locations from there
 figure(100);
@@ -44,6 +47,7 @@ p = [p1;p2]; % axes for all figures.
 
 % generate blank figure and axes
 f = figure(2)
+clf
 for j = 1:size(p,1)
     ax{j} = axes('Parent',f,'Position',p(j,:));
     axis off
@@ -84,17 +88,18 @@ ax_big = axes('Parent',f,'Position',[0.1300 0.1100 0.7750 0.8150]);
 axis off
 caxis([-1,1]);
 cb = colorbar('location','manual');
-cb.Position = [0.934 0.1 0.03 0.85];
+cb.Position = [0.91 0.08 0.03 0.3];
 cb.Ticks = -1:0.5:1;
+colormap(eval(cmap));
 
 % text labels
 circlelabel = sprintf('Circular basis of $r=%i$, $L=%i$',r,L);
-greenlandlabel = 'Geographic basis of $L=90$';
+greenlandlabel = 'Geographic basis of $L=60$';
 
 text(0.5,0.65,circlelabel,'horizontalalignment','center',...
     'interpreter','latex','fontsize',12);
 text(0.5,0.32,greenlandlabel,'horizontalalignment','center',...
     'interpreter','latex','fontsize',12);
 % Save figure
-% figurefiledir = '/Users/benjamingetraer/Documents/JuniorPaper/JP01/Figures/SLEPexamples/SlepvSH'
-% print('-bestfit',figurefiledir,'-dpdf','-r300')
+figurefiledir = '/Users/benjamingetraer/Documents/JuniorPaper/JP01/Figures/SLEPexamples/SlepvSH'
+print('-bestfit',figurefiledir,'-dpdf','-r300')

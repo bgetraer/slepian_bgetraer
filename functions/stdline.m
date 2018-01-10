@@ -9,5 +9,5 @@ sigma = std(y);
 hold on;
 line([x(1),x(end)],[mu-sigma,mu-sigma],'color',c,'linestyle',style);
 stdline_handle = line([x(1),x(end)],[mu+sigma,mu+sigma],'color',c,'linestyle',style);
-meanline_handle = line([x(1),x(end)],[mu,mu],'color','k','linestyle','--');
+% meanline_handle = line([x(1),x(end)],[mu,mu],'color','k','linestyle','--');
 end

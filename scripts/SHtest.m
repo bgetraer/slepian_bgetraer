@@ -11,11 +11,13 @@ setworkspace('/Users/benjamingetraer/Documents/JuniorPaper/SH_Workspace');
 
 [potcoffs,cal_errors,thedates]=grace2plmt('CSR','RL05','SD',0);
 %% May 2003
-plotplm(squeeze(potcoffs(plmt_monthnum(5,2003,thedates),:,:)));
+figure(5)
+plotplm(squeeze(potcoffs(monthnum(5,2003,thedates),:,:)),[],[],[],0.1);
 caxis([-2 2]*1e6)
 c1 = colorbar;
-c1.Label.String='surface mass density';
-title('Surface mass density derived from Geopotential field, May 2003')
+c1.Label.String='kg per m$^2$';
+c1.Label.Interpreter = 'latex';
+title('\textbf{Surface mass density derived from Geopotential field, May 2003}','Interpreter','latex')
 %% Compare October and April
 % difference coeff matrix
 year = 2007;
@@ -32,13 +34,13 @@ c2 = colorbar;
 c2.Label.String='surface mass density';
 title('Difference of Apr. 2008 and Oct. 2007, unfiltered')
 
-% figure(3);hold on;
-% filter_L = 30;
-% plotplm(plmfilt(diff_coef,filter_L))
-% caxis([-.4 .8]*1e3)
-% c3 = colorbar;
-% c3.Label.String='surface mass density';
-% title(sprintf('Difference of Apr. 2008 and Oct. 2007, plmfilt(L=%i)',filter_L))
+ figure(3);hold on;
+filter_L = 30;
+plotplm(plmfilt(diff_coef,filter_L))
+caxis([-.4 .8]*1e3)
+c3 = colorbar;
+c3.Label.String='surface mass density';
+title(sprintf('Difference of Apr. 2008 and Oct. 2007, plmfilt(L=%i)',filter_L))
 %% Compare February and August
 % difference coeff matrix
 year = 2008;
@@ -48,20 +50,30 @@ Aug = squeeze(potcoffs(monthnum(8,year,thedates),:,3:4));
 Feb = squeeze(potcoffs(monthnum(2,year,thedates),:,3:4));
 diff_coef = [theelsems Aug-Feb];
 
-figure(1)
+f =figure(1)
+subplot(1,2,1)
 plotplm(diff_coef,[],[],5)
 caxis([-.6 1]*1e3)
-c1 = colorbar;
-c1.Label.String = 'surface mass density';
-title('Difference of Aug. 2007 and Feb. 2007, unfiltered')
+title('Unfiltered','interpreter','latex')
+set(gca,'fontsize',12)
 
-figure(2);hold on;
+
+subplot(1,2,2);
+hold on;
 filter_L = 30;
 plotplm(plmfilt(diff_coef,filter_L),[],[],5)
-caxis([-.4 .8]*1e3)
+caxis([-.6 1]*1e3)
+title('Filtered','interpreter','latex')
+set(gca,'fontsize',12)
+
+
+ax = copyobj(gca,f)
+axis off
 c2 = colorbar;
-c2.Label.String = 'surface mass density';
-title(sprintf('Difference of Aug. 2007 and Feb. 2007, plmfilt(L=%i)',filter_L))
+c2.Label.String = 'kg per m$^2$';
+c2.Position = [0.91 0.2667 0.0299 0.5019];
+c2.Label.Interpreter = 'latex';
+set(gca,'fontsize',12)
 
 %% TEST WITH plotplm.m FROM slepian_alpha
 

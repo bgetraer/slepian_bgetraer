@@ -1,6 +1,6 @@
 %**************************************************************************
 % Integrated Mass trend 
-% Last modified by bgetraer@princeton.edu, 1/5/2017
+% Last modified by bgetraer@princeton.edu, 1/8/2017
 %**************************************************************************
 addpath('/Users/benjamingetraer/Documents/JuniorPaper/slepian_bgetraer/functions')
 setworkspace('/Users/benjamingetraer/Documents/JuniorPaper/SH_Workspace');
@@ -16,6 +16,7 @@ during = monthnum(7,2012,thedates):monthnum(8,2013,thedates);
 after = monthnum(9,2013,thedates):length(thedates);
 all = 1:length(thedates);
 without = [before after];
+broeke = 1:monthnum(9,2015,thedates);
 %% MODELS
 %   y(t) = m(1) + m(2)*x + 1/2*m(3)*x^2 
 
@@ -35,7 +36,7 @@ sall = total;
 [m1all,f1all,d1all,mint1all] = linear_m(tall,sall,1);
 
 % 2nd degree unweighted polynomial fit
-[m2all,f2all] = linear_m(tall,sall,2);
+[m2all,f2all,~,mint2all] = linear_m(tall,sall,2);
 
 % AFTER DATES
 tafter = ((thedates(after)-thedates(after(1)))/365)'; % time in years
@@ -49,7 +50,16 @@ s2after = total(after);
 [m2after,f2after] = linear_m(tafter,safter,2);
 [m21after,f21after] = linear_m(tafter,s2after,2);
 
+% BROEKE DATES
+tbroeke = ((thedates(broeke)-thedates(broeke(1)))/365)'; % time in years
+sbroeke = total(broeke);
 
+% 1st degree unweighted polynomial fit
+[m1broeke,~,~,mint1broeke] = linear_m(tbroeke,sbroeke,1);
+
+
+% errorbar values
+twosigma = 2*sqrt(alphavarall);
 
 %AGU 2016 polynomial
 % acceleration2016=-28;
@@ -101,7 +111,7 @@ resid2 = total(Harig2013)-f2(Harig2013);
 vartest2(resid1,resid2)
 
 hold on
-errorbar(thedates,total,repmat(sqrt(alphavarall),size(total)),'color',[0.5 0.5 0.5],'linewidth',0.25);
+errorbar(thedates,total,repmat(twosigma,size(total)),'color',[0.5 0.5 0.5],'linewidth',0.25);
 totalplot = plot(thedates,total,'linewidth',1.5);
 getraerplot = plot(thedates(Getraer2018),total(Getraer2018),'linewidth',1.5);
 model1 = plot(thedates,f1,'k:','linewidth',2);
@@ -112,6 +122,7 @@ datetick
 xlim(xlimit); ylim(ylimit);
 xlabel('Year','interpreter','latex');set(gca,'fontsize',12);
 ylabel('Mass (Gt)','interpreter','latex');
+yticksleft = get(gca,'ytick')
 
 yyaxis right
 ylabel('Sea Level Equivalence (mm)','interpreter','latex');
@@ -144,8 +155,8 @@ text(a,0.025,0.1,...
     range,'\\',m1slope,'\\',modeledslope,'\\',m2acceleration),'interpreter','latex','fontsize',12)
 
 % title
-line1 = 'Greenland GRACE signal, 2003--2014';
-line2 = 'Recreation of Harig~\&~Simons, 2016, their Figure 4c';
+line1 = 'Greenland GRACE signal, 2003--2013';
+line2 = 'See Harig~\&~Simons, 2016, their Figure 4c';
 
 title(sprintf('\\begin{tabular}{c} \\textbf{%s} %s %s \\end{tabular}',line1,'\\',line2),...
     'interpreter','latex','fontsize',12,'horizontalalignment','center')
@@ -155,7 +166,7 @@ title(sprintf('\\begin{tabular}{c} \\textbf{%s} %s %s \\end{tabular}',line1,'\\'
 ax{2} = axes('Parent',f,'Position',pos(2,:));
 
 hold on
-errorbar(thedates,total,repmat(sqrt(alphavarall),size(total)),'color',[0.5 0.5 0.5],'linewidth',0.25);
+errorbar(thedates,total,repmat(twosigma,size(total)),'color',[0.5 0.5 0.5],'linewidth',0.25);
 total_m = plot(thedates,total,'linewidth',1.5);
 % total_e = plot(thedates,ESTtotal,'linewidth',1.5);
 model1 = plot(thedates,f1all,'k:','linewidth',2);
@@ -173,6 +184,7 @@ datetick
 xlim(xlimit); ylim(ylimit);
 xlabel('Year','interpreter','latex');set(gca,'fontsize',12);
 ylabel('Mass (Gt)','interpreter','latex');
+yticksleft = get(gca,'ytick')
 
 yyaxis right
 ylabel('Sea Level Equivalence (mm)','interpreter','latex');
@@ -194,13 +206,14 @@ m1slope = sprintf('$\\underline{m}_{1}$ Slope $=%0.2f\\pm{%0.2f}$ Gt per year',m
     totalloss = f1all(jan2016,:)-f1all(jan2003,:);
 modeledslope = sprintf('Avg. mass change 1/2003--1/2017 $=%i$ Gt per year',...
     round(totalloss/10));
-rsq = sprintf('Correlation of model: R$^2=%0.3f$',r(2));
+rsq = sprintf('Correlation of model: R$^2=%0.3f$',r(2)^2);
 text(a,0.025,0.1,...
     sprintf('\\begin{tabular}{l} %s %s %s %s %s %s %s \\end{tabular}',...
     range,'\\',m1slope,'\\',modeledslope,'\\',rsq),'interpreter','latex','fontsize',12)
 
 %legend
-lgd = legend([total_m model1 ] ,ltextdata,ltextmodel_1);
+ltextdelta_1 = sprintf('\\begin{tabular}{c} $\\sigma$ of residuals $=%0.2f$~Gt \\end{tabular}',mean(d1all));
+lgd = legend([total_m model1 delta1] ,ltextdata,ltextmodel_1,ltextdelta_1);
 set(lgd,'Interpreter','latex')
 
 % title
