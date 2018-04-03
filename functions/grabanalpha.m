@@ -79,7 +79,7 @@ switch plot
     case 1
         plotplm(lmcosi_sum,[],[],7,1)
     case 2
-        plotplm(lmcosi_sum,[],[],8,.1)
+        plotplm(lmcosi_sum,[],[],2,.1)
     case 3
         plotplm(lmcosi_sum,[],[],9,.1)
     case 4

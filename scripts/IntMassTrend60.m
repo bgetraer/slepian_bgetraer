@@ -1,4 +1,4 @@
-%**************************************************************************
+ %**************************************************************************
 % Integrated Mass trend 
 % Last modified by bgetraer@princeton.edu, 1/8/2017
 %**************************************************************************
@@ -167,7 +167,11 @@ ax{2} = axes('Parent',f,'Position',pos(2,:));
 
 hold on
 errorbar(thedates,total,repmat(twosigma,size(total)),'color',[0.5 0.5 0.5],'linewidth',0.25);
+grid on
+set(gca,'XMinorGrid','on')
 total_m = plot(thedates,total,'linewidth',1.5);
+plot(thedates(year(thedates)==2012),total(year(thedates)==2012),'r','linewidth',2);
+grid on
 % total_e = plot(thedates,ESTtotal,'linewidth',1.5);
 model1 = plot(thedates,f1all,'k:','linewidth',2);
          plot(thedates,f1all-d1all,'k:','linewidth',0.5);

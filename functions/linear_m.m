@@ -27,7 +27,7 @@ xprime = x(:);
 y = y(:);
 x = xprime(1:length(y));
 
-defval('n',1)
+% defval('n',1)
 if n>2
     error('Only supports degree 1 and 2 polynomial regression');
 end
