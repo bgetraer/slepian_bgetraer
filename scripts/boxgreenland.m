@@ -43,7 +43,7 @@ c = c.*(2*pi/360);
 alpha = 0;
 beta = -0.29;
 gamma = 0.8;
-order = 11;  % # points on cubed sphere = 6*2^order
+order = 9;  % # points on cubed sphere = 6*2^order
 % Get the cubed sphere points
 [x,y,z] = cube2sphere(order,alpha,beta,gamma,0,0);
 % index the points that are around greenland
@@ -95,15 +95,15 @@ signal = G(:,1:20)*(slepcoffs(1,1:20)-mean(slepcoffs(:,1:20)))';
 [~,~,~,blank,~,~,~,~,~,ronm]=addmon(L);
 lmcosi_mat = zeros([size(blank) size(signal,3)]) + blank;
 
-for j = 1:size(signal,3)
-    % Create the coefficient blanks
-    cosi=blank(:,3:4);
-    % grab the coefficients of an alpha eigentaper and
-    % re-index them in lmcosi format
-    cosi(ronm)=signal(:,1,j);
-    % Add them to the full matrix
-    lmcosi_mat(:,3:4,j)=cosi;
-end
+
+% Create the coefficient blanks
+cosi=blank(:,3:4);
+% grab the coefficients of an alpha eigentaper and
+% re-index them in lmcosi format
+cosi(ronm)=signal(:,1,1);
+% Add them to the full matrix
+lmcosi_mat(:,3:4,1)=cosi;
+
 % Create 2d matrix of summed coefficients for all grabbed alphas.
 lmcosi_sum = [blank(:,1:2) sum(lmcosi_mat(:,3:4,:),3)];
 

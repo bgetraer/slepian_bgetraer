@@ -111,45 +111,54 @@ resid2 = total(Harig2013)-f2(Harig2013);
 vartest2(resid1,resid2)
 
 hold on
-errorbar(thedates,total,repmat(twosigma,size(total)),'color',[0.5 0.5 0.5],'linewidth',0.25);
-totalplot = plot(thedates,total,'linewidth',1.5);
-getraerplot = plot(thedates(Getraer2018),total(Getraer2018),'linewidth',1.5);
+grid on
 model1 = plot(thedates,f1,'k:','linewidth',2);
+getraerplot = plot(thedates(Getraer2018),total(Getraer2018),'linewidth',1.5);
+totalplot = plot(thedates,total,'linewidth',1.5);
 model2 = plot(thedates,f2,'--','linewidth',2);
+errorbar(thedates,total,repmat(twosigma,size(total)),'color',[0.5 0.5 0.5],'linewidth',0.25);
+
+% shade the unmodeled years
+lim = axis;
+fillx = [thedates(Getraer2018(1)),lim(2)];
+fillx = [fillx flip(fillx)];
+filly = [lim([3,3]) lim([4,4])];
+shade = fill(fillx,filly,[0.8 0.8 0.8],'facealpha',0.5);
+set(gca,'children',flipud(get(gca,'children')))
 
 %axes format
 datetick
 xlim(xlimit); ylim(ylimit);
 xlabel('Year','interpreter','latex');set(gca,'fontsize',12);
 ylabel('Mass (Gt)','interpreter','latex');
-yticksleft = get(gca,'ytick')
+yticksleft = get(gca,'ytick');
 
 yyaxis right
 ylabel('Sea Level Equivalence (mm)','interpreter','latex');
 
 set(gca,'ylim',[yticksleft(1) yticksleft(end)],'ytick',yticksright,...
     'yticklabels',yticklabels,'ycolor',[0 0 0])
+xt = get(gca,'xtick');
 
 % accessory plotting
 %new axes for text plotting
 a = axes('Parent',f,'Position',pos(1,:));
 axis off
-
 %legend
 lgd = legend([totalplot model1 model2] ,ltextdata,ltextmodel_1,ltextmodel_2);
 set(lgd,'Interpreter','latex')
 
 
 % text block of some interesting values
-range = sprintf('Range $\\approx%i$ Gt',round(max(s)-min(s),-2));
-m1slope = sprintf('$\\underline{m}_{1}$ Slope $=%0.2f\\pm{%0.2f}$ Gt per year',m1(2),mint1(2));
+range = sprintf('Range 1/2003--1/2013 $\\approx%i$ Gt',round(max(s)-min(s),-2));
+m1slope = sprintf('$\\underline{m}_{1}$ Slope $=%0.1f\\pm{%0.1f}$ Gt per year',m1(2),mint1(2));
 % Average modeled mass loss per year 2003-2013
     jan2003 = monthnum(1,2003,thedates);
     jan2013 = monthnum(1,2013,thedates);
     totalloss = f2(jan2013,:)-f2(jan2003,:);
 modeledslope = sprintf('Avg. mass change 1/2003--1/2013 $=%i$ Gt per year',...
     round(totalloss/10));
-m2acceleration = sprintf('$\\underline{m}_{2}$ Acceleration $=%0.2f\\pm{%0.2f}$ Gt per year$^{2}$',m2(3),mint2(3));
+m2acceleration = sprintf('$\\underline{m}_{2}$ Acceleration $=%0.1f\\pm{%0.1f}$ Gt per year$^{2}$',m2(3),mint2(3));
 text(a,0.025,0.1,...
     sprintf('\\begin{tabular}{l} %s %s %s %s %s %s %s \\end{tabular}',...
     range,'\\',m1slope,'\\',modeledslope,'\\',m2acceleration),'interpreter','latex','fontsize',12)
@@ -168,10 +177,11 @@ ax{2} = axes('Parent',f,'Position',pos(2,:));
 hold on
 errorbar(thedates,total,repmat(twosigma,size(total)),'color',[0.5 0.5 0.5],'linewidth',0.25);
 grid on
-set(gca,'XMinorGrid','on')
+% set(gca,'XMinorGrid','on')
 total_m = plot(thedates,total,'linewidth',1.5);
-plot(thedates(year(thedates)==2012),total(year(thedates)==2012),'r','linewidth',2);
-grid on
+% highlight 2012
+% plot(thedates(year(thedates)==2012),total(year(thedates)==2012),'r','linewidth',2);
+
 % total_e = plot(thedates,ESTtotal,'linewidth',1.5);
 model1 = plot(thedates,f1all,'k:','linewidth',2);
          plot(thedates,f1all-d1all,'k:','linewidth',0.5);
@@ -184,7 +194,7 @@ vartest2(resid1,resid2)
 [r p] = corrcoef(total,f1all)
 
 %axes format
-datetick
+set(gca,'xtick',xt,'xticklabels',year(xt))
 xlim(xlimit); ylim(ylimit);
 xlabel('Year','interpreter','latex');set(gca,'fontsize',12);
 ylabel('Mass (Gt)','interpreter','latex');
@@ -194,7 +204,7 @@ yyaxis right
 ylabel('Sea Level Equivalence (mm)','interpreter','latex');
 
 set(gca,'ylim',[yticksleft(1) yticksleft(end)],'ytick',yticksright,...
-    'yticklabels',yticklabels,'ycolor',[0 0 0])
+    'yticklabels',yticklabels,'ycolor',[0 0 0]);
 
 % accessory plotting
 %new axes for text plotting
@@ -202,21 +212,21 @@ a = axes('Parent',f,'Position',pos(2,:));
 axis off
 
 % text block of some interesting values
-range = sprintf('Range $\\approx%i$ Gt',round(max(sall)-min(sall),-2));
-m1slope = sprintf('$\\underline{m}_{1}$ Slope $=%0.2f\\pm{%0.2f}$ Gt per year',m1all(2),mint1all(2));
+range = sprintf('Range 1/2003--1/2017 $\\approx%i$ Gt',round(max(sall)-min(sall),-2));
+m1slope = sprintf('$\\underline{m}_{1}$ Slope $=%0.1f\\pm{%0.1f}$ Gt per year',m1all(2),mint1all(2));
 % Average modeled mass loss per year 2003-2013
     jan2003 = monthnum(1,2003,thedates);
     jan2016 = monthnum(1,2013,thedates);
     totalloss = f1all(jan2016,:)-f1all(jan2003,:);
 modeledslope = sprintf('Avg. mass change 1/2003--1/2017 $=%i$ Gt per year',...
     round(totalloss/10));
-rsq = sprintf('Correlation of model: R$^2=%0.3f$',r(2)^2);
+rsq = sprintf('$\\underline{m}_{1}$ explained variance: R$^2=%0.3f$',r(2)^2);
 text(a,0.025,0.1,...
     sprintf('\\begin{tabular}{l} %s %s %s %s %s %s %s \\end{tabular}',...
     range,'\\',m1slope,'\\',modeledslope,'\\',rsq),'interpreter','latex','fontsize',12)
 
 %legend
-ltextdelta_1 = sprintf('\\begin{tabular}{c} $\\sigma$ of residuals $=%0.2f$~Gt \\end{tabular}',mean(d1all));
+ltextdelta_1 = sprintf('\\begin{tabular}{c} $\\sigma$ of residuals $=%0.1f$~Gt \\end{tabular}',mean(d1all));
 lgd = legend([total_m model1 delta1] ,ltextdata,ltextmodel_1,ltextdelta_1);
 set(lgd,'Interpreter','latex')
 
@@ -224,3 +234,4 @@ set(lgd,'Interpreter','latex')
 line1 = 'Greenland GRACE signal, 2003--2017';
 title(sprintf('\\begin{tabular}{c} \\textbf{%s} \\end{tabular}',line1),...
     'interpreter','latex','fontsize',12,'horizontalalignment','center')
+

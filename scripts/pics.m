@@ -3,8 +3,8 @@ datadir = '/Users/benjamingetraer/Documents/JuniorPaper/slepian_bgetraer/datafil
 addpath(datadir)
 setworkspace('/Users/benjamingetraer/Documents/JuniorPaper/SH_Workspace');
 
-
-load(fullfile(datadir,'boxGL11.mat'))
+order = 9;
+load(fullfile(datadir,sprintf('boxGL%d.mat',order)))
 
 % plot greenland and the outline of the box
 figure(1)
@@ -28,7 +28,7 @@ plot(lond(end,1),latd(end,1),'o',...
 
 %% Image of Greenland mass and image basis
 figure(2)
-im1 = imagesc(Dim); % the image of Greenland
+im1 = imagesc(D); % the image of Greenland
 axis image
 colormap(bluewhitered(1000,0));
 colorbar
@@ -70,7 +70,7 @@ y4=Fy(lond(end,end),latd(end,end));
 
 figure(2)
 clf
-im1 = imagesc(Dim);
+im1 = imagesc(D);
 colormap(bluewhitered(1000,0));
 colorbar
 axis image
@@ -81,6 +81,8 @@ plot([x1,x2,x3,x4],[y1,y2,y3,y4],'o',...
 % Greenland
 plot(gx,gy,'k-')
 
+%% save interpolant functions
+save(fullfile(datadir,sprintf('im_tools%d.mat',order)),'Fx','Fy','gx','gy')
 %% WD = wavedec2(Dim,
 
 figure(2)
