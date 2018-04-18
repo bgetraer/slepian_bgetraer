@@ -85,27 +85,32 @@ plot3(cx,cy,cz,'x');
 axis equal; hold off; axis off;
 view(37,90)
 
+
 %% get the Greenland data in lmcosi matrix
-load('Greenland60data');
 L=60;
-N=19.6735;
-signal = G(:,1:20)*(slepcoffs(1,1:20)-mean(slepcoffs(:,1:20)))';
 
-% Create blank LMCOSI matrix
-[~,~,~,blank,~,~,~,~,~,ronm]=addmon(L);
-lmcosi_mat = zeros([size(blank) size(signal,3)]) + blank;
+% load('Greenland60data');
+% N=19.6735;
+% signal = G(:,1:20)*(slepcoffs(1,1:20)-mean(slepcoffs(:,1:20)))';
+% 
+% % Create blank LMCOSI matrix
+% [~,~,~,blank,~,~,~,~,~,ronm]=addmon(L);
+% lmcosi_mat = zeros([size(blank) size(signal,3)]) + blank;
+% 
+% 
+% % Create the coefficient blanks
+% cosi=blank(:,3:4);
+% % grab the coefficients of an alpha eigentaper and
+% % re-index them in lmcosi format
+% cosi(ronm)=signal(:,1,1);
+% % Add them to the full matrix
+% lmcosi_mat(:,3:4,1)=cosi;
+% 
+% % Create 2d matrix of summed coefficients for all grabbed alphas.
+% lmcosi_sum = [blank(:,1:2) sum(lmcosi_mat(:,3:4,:),3)];
 
 
-% Create the coefficient blanks
-cosi=blank(:,3:4);
-% grab the coefficients of an alpha eigentaper and
-% re-index them in lmcosi format
-cosi(ronm)=signal(:,1,1);
-% Add them to the full matrix
-lmcosi_mat(:,3:4,1)=cosi;
 
-% Create 2d matrix of summed coefficients for all grabbed alphas.
-lmcosi_sum = [blank(:,1:2) sum(lmcosi_mat(:,3:4,:),3)];
 
 %% CALCULATE AT SOME POINTS
 % this is the time consuming bit... plm2xyz takes a while
