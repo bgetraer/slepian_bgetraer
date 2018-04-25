@@ -4,8 +4,8 @@ addpath(datadir)
 setworkspace('/Users/benjamingetraer/Documents/JuniorPaper/SH_Workspace');
 
 load('Greenland60data');
-load('ptsGL9')
-load('im_tools9')
+load('ptsGL11')
+load('im_tools11')
 %% find peaks in Greenland signal
 figure(1)
 clf
@@ -18,7 +18,7 @@ findpeaks(ESTtotal)
 % shcoffs = G(:,1:20)*slepcoffs(:,1:20)';
 % 
 % % Create blank LMCOSI matrix
-% L=60;
+L=60;
 % [~,~,~,blank,~,~,~,~,~,ronm]=addmon(L);
 % lmcosi_mat = zeros([size(blank) 1]) + blank;
 % 
@@ -57,10 +57,11 @@ for i=1:size(thedates,2)
     fprintf('i=%d of %d \nnow starting plm2xyz\n',i,size(thedates,2))
     [data]=plm2xyz(squeeze(potcoffs(i,:,:)),latd(:),lond(:)); % vector of solutions
     D(:,:,i) = reshape(data,shp);  % put the vector back into matrix form
+    % Save images
+    filename = 'im_seqSH11';
+    save(fullfile(datadir,filename),'D','thedates')
 end
-%% Save images
-filename = 'im_seqSH9';
-save(fullfile(datadir,filename),'D','thedates')
+
 %%
 
 % Greenland lat lon

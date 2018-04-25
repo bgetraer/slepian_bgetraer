@@ -41,15 +41,16 @@ c = c.*(2*pi/360);
 
 % Euler angles to center around Greenland
 alpha = 0;
-beta = -0.29;
-gamma = 0.8;
-order = 9;  % # points on cubed sphere = 6*2^order
+beta = -0.31;
+gamma = 0.79;
+order = 11;  % # points on cubed sphere = 6*2^order
 % Get the cubed sphere points
 [x,y,z] = cube2sphere(order,alpha,beta,gamma,0,0);
 % index the points that are around greenland
 l = length(x);
 indx = 11*l/32:21*l/32;
-indy = 13*l/32:19*l/32;
+% indy = 13*l/32:19*l/32;
+indy = 11*l/32:21*l/32;
 % define the points that are around greenland
 xprime = x(indx,indy,5);
 yprime = y(indx,indy,5);
@@ -68,8 +69,8 @@ latd = flip(flip(latd),2);
 clear p
 figure(2)
 clf
-% p=plot3(xprime(:),yprime(:),zprime(:),'o',...
-%     'MarkerF','r','MarkerE','r');
+p=plot3(xprime(:),yprime(:),zprime(:),'o',...
+    'MarkerF','r','MarkerE','r');
 hold on; 
 % set(p,'MarkerS',1)
 plot3(xprime(1,end),yprime(1,end),zprime(1,end),'o',...
@@ -80,41 +81,36 @@ plot3(xprime(end,1),yprime(end,1),zprime(end,1),'o',...
     'MarkerF','r','MarkerE','k');
 plot3(xprime(end,end),yprime(end,end),zprime(end,end),'o',...
     'MarkerF','r','MarkerE','k');
-plot3(gx,gy,gz);
+plot3(gx,gy,gz,'linewidth',5);
 plot3(cx,cy,cz,'x');
 axis equal; hold off; axis off;
 view(37,90)
-
-
 %% get the Greenland data in lmcosi matrix
 L=60;
 
-% load('Greenland60data');
-% N=19.6735;
-% signal = G(:,1:20)*(slepcoffs(1,1:20)-mean(slepcoffs(:,1:20)))';
-% 
-% % Create blank LMCOSI matrix
-% [~,~,~,blank,~,~,~,~,~,ronm]=addmon(L);
-% lmcosi_mat = zeros([size(blank) size(signal,3)]) + blank;
-% 
-% 
-% % Create the coefficient blanks
-% cosi=blank(:,3:4);
-% % grab the coefficients of an alpha eigentaper and
-% % re-index them in lmcosi format
-% cosi(ronm)=signal(:,1,1);
-% % Add them to the full matrix
-% lmcosi_mat(:,3:4,1)=cosi;
-% 
-% % Create 2d matrix of summed coefficients for all grabbed alphas.
-% lmcosi_sum = [blank(:,1:2) sum(lmcosi_mat(:,3:4,:),3)];
+load('Greenland60data');
+N=19.6735;
+signal = G(:,1:20)*(slepcoffs(1,1:20)-mean(slepcoffs(:,1:20)))';
+
+% Create blank LMCOSI matrix
+[~,~,~,blank,~,~,~,~,~,ronm]=addmon(L);
+lmcosi_mat = zeros([size(blank) size(signal,3)]) + blank;
 
 
+% Create the coefficient blanks
+cosi=blank(:,3:4);
+% grab the coefficients of an alpha eigentaper and
+% re-index them in lmcosi format
+cosi(ronm)=signal(:,1,1);
+% Add them to the full matrix
+lmcosi_mat(:,3:4,1)=cosi;
 
+% Create 2d matrix of summed coefficients for all grabbed alphas.
+lmcosi_sum = [blank(:,1:2) sum(lmcosi_mat(:,3:4,:),3)];
 
 %% CALCULATE AT SOME POINTS
 % this is the time consuming bit... plm2xyz takes a while
-[data]=plm2xyz(lmcosi_sum,latd(:),lond(:)); % vector of solutions
+[data,lon,lat,Plm]=plm2xyz(lmcosi_sum,latd(:),lond(:)); % vector of solutions
 D = reshape(data,shp);  % put the vector back into matrix form
 Dim = imrotate(D,180);
 %%  MORE PLOTTING
@@ -139,7 +135,7 @@ Dim = imrotate(D,180);
 % colormap(bluewhitered(1000))
 % colorbar
 %% SAVE DATA
-filename1 = sprintf('boxGL%d',order);
-save(fullfile(datadir,filename1),'D','Dim','xprime','yprime','zprime','latd','lond')
+% filename1 = sprintf('boxGL%d',order);
+% save(fullfile(datadir,filename1),'D','Dim','xprime','yprime','zprime','latd','lond')
 filename2 = sprintf('ptsGL%d',order);
 save(fullfile(datadir,filename2),'xprime','yprime','zprime','latd','lond')
