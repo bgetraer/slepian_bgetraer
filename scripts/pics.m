@@ -3,8 +3,9 @@ datadir = '/Users/benjamingetraer/Documents/JuniorPaper/slepian_bgetraer/datafil
 addpath(datadir)
 setworkspace('/Users/benjamingetraer/Documents/JuniorPaper/SH_Workspace');
 
-order = 9;
+order = 11;
 load(fullfile(datadir,sprintf('boxGL%d.mat',order)))
+load(fullfile(datadir,sprintf('ptsGL%d.mat',order)))
 
 % plot greenland and the outline of the box
 figure(1)
@@ -28,7 +29,9 @@ plot(lond(end,1),latd(end,1),'o',...
 
 %% Image of Greenland mass and image basis
 figure(2)
-im1 = imagesc(D); % the image of Greenland
+clf
+im1 = imagesc(lond); % the image of Greenland
+hold on
 axis image
 colormap(bluewhitered(1000,0));
 colorbar
@@ -70,10 +73,11 @@ y4=Fy(lond(end,end),latd(end,end));
 
 figure(2)
 clf
-im1 = imagesc(D);
+im1 = imagesc(lond);
+axis image
+
 colormap(bluewhitered(1000,0));
 colorbar
-axis image
 hold on
 % endpoints
 plot([x1,x2,x3,x4],[y1,y2,y3,y4],'o',...

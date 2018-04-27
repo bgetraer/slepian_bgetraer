@@ -4,8 +4,8 @@ addpath(datadir)
 setworkspace('/Users/benjamingetraer/Documents/JuniorPaper/SH_Workspace');
 
 load('Greenland60data');
-load('ptsGL11')
-load('im_tools11')
+load('ptsGL10')
+load('im_tools10')
 %% find peaks in Greenland signal
 figure(1)
 clf
@@ -48,20 +48,21 @@ validrange = monthnum(1,2003,thedates):length(thedates); % crop off the first 7 
 potcoffs = potcoffs(validrange,:,:);
 thedates = thedates(validrange);
 %% Evaluate the signals on the grid
+clear alphavar alphavarall blank cosi ESTresid ESTsignal ESTtotal ESTtotalresid ...
+    ftests G lmcosi_mat lmcosi_sum slepcoffs signal 
 % blank for the images
 shp = size(lond);
-D = zeros([shp,size(thedates,2)]);
-Dim = zeros(size(D));
+filename = 'im_endsSH10';
+% load(fullfile(datadir,filename))
+D = zeros([shp,2]);
 % this is the time consuming bit... plm2xyz takes a while
-for i=1:size(thedates,2)
+for i=[1 size(thedates,2)]
     fprintf('i=%d of %d \nnow starting plm2xyz\n',i,size(thedates,2))
     [data]=plm2xyz(squeeze(potcoffs(i,:,:)),latd(:),lond(:)); % vector of solutions
     D(:,:,i) = reshape(data,shp);  % put the vector back into matrix form
     % Save images
-    filename = 'im_seqSH11';
     save(fullfile(datadir,filename),'D','thedates')
 end
-
 %%
 
 % Greenland lat lon

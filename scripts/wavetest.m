@@ -3,24 +3,18 @@ datadir = '/Users/benjamingetraer/Documents/JuniorPaper/slepian_bgetraer/datafil
 addpath(datadir)
 setworkspace('/Users/benjamingetraer/Documents/JuniorPaper/SH_Workspace');
 
-load('ptsGL11')
-load('im_tools11')
-% load('im_seqSH9.mat')
-load('im_endsSH11.mat')
+order = 10;
+load(strcat('ptsGL',num2str(order)))
+load(strcat('im_tools',num2str(order)))
+load(strcat('im_endsSH',num2str(order)))
 %%
-in = 3;
-level = 10;
+level = 8;
 % choose orthoganal wavelet for enery preservation
-% choose fejer-korovkin for 
-wavename = 'fk4';
-[phi,psi,xval] = wavefun(wavename);
-figure(10)
-subplot(2,1,1)
-plot(xval,phi)
-title('Scaling Function')
-subplot(2,1,2)
-plot(xval,psi)
-title('Wavelet')
+% we choose one that is blocky - we don't want to overfit our test case.
+% choose fejer-korovkin for simplicity of representation (in minimum number
+% of wavelets needed to cover the image, orthogonality,
+% and improvement over haar in invariance.
+wavename = 'haar';
 
 Ddiff =  D(:,:,end)-D(:,:,1);
 
@@ -39,7 +33,7 @@ set(gca,'ydir','reverse')
 waveC = [];
 l = zeros(level,1);
 sz = zeros(level,2);
-clear C 
+clear C
 for j = 1:level
     C{j} = appcoef2(wdiff,sdiff,wavename,j); % the wavelet coeff matrices
     sz(j,:) = size(C{j});    % save the sizes of each coeff matrix
@@ -48,7 +42,6 @@ for j = 1:level
     
     plot(gx,gy,'k-')
     imagesc(C{j})
-    %     caxis([-0.2672    1.7162]*1E6)
     colormap(bluewhitered(1000,1));
 end
 
@@ -105,64 +98,50 @@ colormap(bluewhitered(1000,1));
 
 
 %%
-ptl = [0:20:80 90:0.5:100];
-clear T er r2 wD
-for i = 1:length(ptl)
-T(i) = prctile(sortwaveC,ptl(i));
-N = [1:level];
-NC = wthcoef2('t',wdiff,sdiff,N,repmat(T(i),size(N)),'h');
-wD{i} = waverec2(NC,sdiff,wavename);
 
-% er(i) = immse(Ddiff,wD);
-r2(i) = 1-var(Ddiff-wD{i})/var(Ddiff);
-end
-
-%%
+level = 10;
+wname = {'haar','fk4','bior6.8'};
+ptl = [96:0.1:100];
+N = 1:level;
+    
+figure(5)
 clf
 hold on
-yyaxis right
-% plot(ptl,er,'linewidth',2)
-yyaxis left
-hold on
-loglog(ptl,r2,'linewidth',2)
+for j = 1:length(wname)
+    Ddiff =  D(:,:,end)-D(:,:,1);
+    [wdiff,sdiff]=wavedec2(Ddiff,level,wname{j});
+    
+    
+    clear T er r2 wD b
+    for i = 1:length(ptl)
+        T(i) = prctile(wdiff,ptl(i));
+        NC = wthcoef2('t',wdiff,sdiff,N,repmat(T(i),size(N)),'h');
+        wD{i} = waverec2(NC,sdiff,wname{j});
+        er(i) = immse(Ddiff,wD{i});
+        r2(i) = 1-var(Ddiff-wD{i})/var(Ddiff);
+    end
+    plot(ptl,r2,'linewidth',2)
+end
+%
+legend(wname)
 
-sum(sum(Ddiff))
-sum(sum(wD{i}))
+% sum(sum(Ddiff))
+
+
 %%
-index = 100:400;
-level = 4;
-wavename = 'fk4';
-for in=index
-
-% for i = 1:size(D,3)
-%     X = D(:,:,i);
-%     [wd,s]=wavedec2(X,level,wavename);
-%     y(i) = wd(in);
-% end
-[wd,s]=wavedec2(Ddiff,level,wavename);
-
 figure(1)
-clf
-subplot(1,2,1)
-wd([1:in-1,in+1:end]) = 0;
-wD = waverec2(wd,s,wavename);
-% wd(in)
-imagesc(wD(:,:));
-imagesc(wD)
-colormap(bluewhitered(1000,1));
-axis image
-hold on;
-% Greenland
+imagesc(xp)
+figure(2)
+imagesc(yp)
+hold on
 plot(gx,gy,'k-')
-axis off
-pause(0.01)
-end
-% subplot(1,2,2)
-% plot(thedates,y,'o-','linewidth',1)
-% datetick
-% legend('wavelet coefficient value')
-% xlabel('year')
-% ylabel('kg per m^2')
-% 
-% 
-% 
+
+a = inpolygon(xp(:),yp(:),gx,gy);
+%%
+A = reshape(a,size(xp));
+figure(2)
+clf
+imagesc(A)
+hold on
+colormap(bone)
+plot(gx,gy,'r','linewidth',2)
