@@ -16,7 +16,7 @@ level = 8;
 % and improvement over haar in invariance.
 wname = {'haar','fk4','bior3.7'};
 level = 10;
-ptl = linspace(90,100,30);
+ptl = linspace(96,100,50);
 Ddiff =  D(:,:,end)-D(:,:,1);
 
 
@@ -30,7 +30,7 @@ for i = 1:length(wname)
     axis tight
 end
 %
-pthresh = 0.98;
+pthresh = 0.95;
 
 subplot(3,3,[2,3,5,6,8,9])
 cla
@@ -57,13 +57,13 @@ for j = 1:length(wname)
     np(j) = sum(QC~=0);
     Q{j} = waverec2(QC,sdiff,wname{j});
 end
-%%
+%
 for j = 1:length(wname)
     txth{j}=strcat('\begin{tabular}{lr} \textbf{',wname{j},'} inv. &',...
         num2str(np(j)), sprintf(' coefficients at %0.2f',pthresh), '\end{tabular}');
     txtb{j}=strcat('\begin{tabular}{l} \textbf{',wname{j},'} bias \end{tabular}');
 end
-axis([90 100 ylim])
+axis([96 100 ylim])
 plot(xlim,[pthresh pthresh],'--','color',0.6*[1 1 1],'linewidth',1)
 ylabel('image invariance or bias')
 xlabel('percentile threshold')

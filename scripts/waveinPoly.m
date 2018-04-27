@@ -3,18 +3,13 @@ datadir = '/Users/benjamingetraer/Documents/JuniorPaper/slepian_bgetraer/datafil
 addpath(datadir)
 setworkspace('/Users/benjamingetraer/Documents/JuniorPaper/SH_Workspace');
 
-order = 9;
+order = 10;
 load(strcat('ptsGL',num2str(order)))
 load(strcat('im_tools',num2str(order)))
 load(strcat('im_endsSH',num2str(order)))
 
 close all
 %%
-% get the greenland buffer
-buff=greenland(10,0.5);
-bx = Fx(buff(:,1),buff(:,2));
-by = Fy(buff(:,1),buff(:,2));
-
 % find the points inside of Greenland
 a = inpolygon(xp(:),yp(:),bx,by);
 A = 1*reshape(a,size(xp));
@@ -26,73 +21,63 @@ imagesc(A)
 hold on
 colormap(bone)
 plot(bx,by,'r','linewidth',2)
-
+plot(gx,gy,'k','linewidth',1)
+%% where are the different level?
+level = 8;
+levelin{8} = 1:4*l(8);
+for i = (length(l)-1):-1:1
+    % level i
+    levelin{i} = levelin{i+1}(end) + (1:3*l(i));
+end
 %%
 % DETERMINE WHICH WAVELETS PASS AN AREA THRESHOLD WITHIN A BUFFERED
 % GREENLAND
 [wd,s]=wavedec2(A,level,wavename);
 wd = wd*0+1;
+
+areathresh = linspace(0.9,0.05,level-1);
+
 pass = zeros(size(wd));
-areathresh = 1/3;
 
-for in=44
-    fprintf('loop %d \n',in)
-    % for i = 1:size(D,3)
-    %     X = D(:,:,i);
-    %     [wd,s]=wavedec2(X,level,wavename);
-    %     y(i) = wd(in);
-    % end
-
-    figure(6)
-    clf
-    thiswd = wd;
-    thiswd([1:in-1,in+1:end]) = 0;
-    wD = waverec2(thiswd,s,wavename);
-    xw = xp(wD(:)~=0);
-    yw = yp(wD(:)~=0);
-    pw = inpolygon(xw(:),yw(:),bx,by);
-    aw = sum(wD(:)~=0);
-    ainp = sum(pw(:)~=0);
-    pass(in) = (1-(aw-ainp)/aw > areathresh);
-
-    imagesc(~wD)
-    colormap(bone);
-    axis image
-    hold on;
-    % Greenland
-    plot(gx,gy,'k-')
-    axis off
-    pause(0.1)
+for i = 1:level-1
+    fprintf('level %d \n',i)
+    
+    index = levelin{i}(1:l(i)); % only look at one of the wavelet sequences
+    % per level
+    passlevel = zeros(size(index));
+    for in = index
+        %         fprintf('wavelet %d of %d \n',find(index==in),l(i))
+        thiswd = wd;
+        thiswd([1:in-1,in+1:end]) = 0;
+        wD = waverec2(thiswd,s,wavename);
+        xw = xp(wD(:)~=0);
+        yw = yp(wD(:)~=0);
+        pw = inpolygon(xw(:),yw(:),bx,by);
+        aw = sum(wD(:)~=0);
+        ainp = sum(pw(:)~=0);
+        passlevel(index==in) = (1-(aw-ainp)/aw > areathresh(i));
+%         % optional plotting
+%         imagesc(~wD)
+%         colormap(bone);
+%         axis image
+%         hold on;
+%         % Greenland
+%         plot(gx,gy,'k-')
+%         axis off
+%         pause(0.1)
+        
+    end
+    
+    pass(levelin{i}) = [passlevel, passlevel, passlevel];
 end
 
-% sum(wD(:)~=0)
-% subplot(1,2,2)
-% plot(thedates,y,'o-','linewidth',1)
-% datetick
-% legend('wavelet coefficient value')
-% xlabel('year')
-% ylabel('kg per m^2')
+pass(levelin{8})=1;
+pass(levelin{7})=1;
 
-% level 8
-in8 = 1:4*l(8);
-pass(in8)=1;
-% level 7
-in7 = in8(end)+ (1:3*l(7));
-pass(in7)=1;
-% level 6
-in6 = in7(end)+ (1:3*l(6));
-pass(in6)=0;
-% level 6
-in6 = in7(end)+ (1:3*l(6));
-pass(in6)=0;
-% level 6
-in6 = in7(end)+ (1:3*l(6));
-pass(in6)=0;
-
-
-filename = sprintf('pass%d%d',order,areathresh);
+filename = sprintf('pass%dlin',order);
 save(fullfile(datadir,filename),'pass')
 %%
+load(fullfile(datadir,filename))
 figure(6)
 clf
 % [wd,s]=wavedec2(A,level,wavename);
@@ -106,9 +91,122 @@ plot(gx,gy,'k-')
 axis off
 pause(0.01)
 
+%% HERE IS A MONEY FIGURE
+
+figure(3)
+clf
+subplot(3,3,1)
+imagesc(Ddiff)
+axis image
+hold on
+plot(gx,gy,'k-')
+title(sprintf('%d wavelets',sum(wdiff~=0)))
+bias1 = sprintf('\\textbf{bias} & = &%0.3e',abs((sum(Ddiff(:))-sum(Ddiff(:)))/sum(Ddiff(:))));
+invar1 = sprintf('\\textbf{invar} &= &%0.3f',1-var(Ddiff(:)-Ddiff(:))/var(Ddiff(:)));
+text1 = strcat('\begin{tabular}{lcr}',invar1,'\\',bias1,'\end{tabular}');
+% text(300,150,text1,'interpreter','latex')
+axis off
+cax = caxis;
 
 
-%%
+subplot(3,3,4)
+imagesc(wDT)
+axis image
+hold on
+plot(gx,gy,'k-')
+title(sprintf('%d wavelets',sum(DT~=0)))
+bias2 = sprintf('\\textbf{bias} & = &%0.3e',abs((sum(Ddiff(:))-sum(wDT(:)))/sum(Ddiff(:))));
+invar2 = sprintf('\\textbf{invar} &= &%0.3f',1-var(Ddiff(:)-wDT(:))/var(Ddiff(:)));
+text2 = strcat('\begin{tabular}{lcr}',invar2,'\\',bias2,'\end{tabular}');
+text(-80,128,text2,'interpreter','latex','rotation',90,'horizontalalignment','center')
+caxis(cax)
+axis off
+
+subplot(3,3,7)
+wDTA = waverec2(DT.*pass,sdiff,wavename);
+imagesc(wDTA)
+axis image
+hold on
+plot(gx,gy,'k-')
+% text and titles
+title(sprintf('%d wavelets',sum(DT.*pass~=0)))
+bias3 = sprintf('\\textbf{bias} & = &%0.3e',abs((sum(Ddiff(:))-sum(wDTA(:)))/sum(Ddiff(:))));
+invar3 = sprintf('\\textbf{invar} &= &%0.3f',1-var(Ddiff(:)-wDTA(:))/var(Ddiff(:)));
+text3 = strcat('\begin{tabular}{lcr}',invar3,'\\',bias3,'\end{tabular}');
+text(-80,128,text3,'interpreter','latex','rotation',90,'horizontalalignment','center')
+axis off
+caxis(cax)
+
+% NOW FOR THE MASKED IMAGES
+subplot(3,3,3)
+imagesc(Ddiff.*A)
+axis image
+hold on
+plot(gx,gy,'k-')
+title(sprintf('%d wavelets, masked',sum(wdiff~=0)))
+axis off
+caxis(cax)
+
+subplot(3,3,6)
+imagesc(wDT.*A)
+axis image
+hold on
+plot(gx,gy,'k-')
+title(sprintf('%d wavelets, masked',sum(DT~=0)))
+bias2 = sprintf('\\textbf{bias} & = &%0.3e',abs((sum(Ddiff(:).*A(:))-sum(wDT(:).*A(:)))/sum(Ddiff(:))));
+invar2 = sprintf('\\textbf{invar} &= &%0.3f',1-var(Ddiff(:).*A(:)-wDT(:).*A(:))/var(Ddiff(:)));
+text2 = strcat('\begin{tabular}{lcr}',invar2,'\\',bias2,'\end{tabular}');
+text(256+80,128,text2,'interpreter','latex','rotation',90,'horizontalalignment','center')
+axis off
+caxis(cax)
+
+subplot(3,3,9)
+wDTA = waverec2(DT.*pass,sdiff,wavename);
+imagesc(wDTA.*A)
+axis image
+hold on
+plot(gx,gy,'k-')
+% text and titles
+title(sprintf('%d wavelets, masked',sum(DT.*pass~=0)))
+bias3 = sprintf('\\textbf{bias} & = &%0.3e',abs((sum(Ddiff(:).*A(:))-sum(wDTA(:).*A(:)))/sum(Ddiff(:))));
+invar3 = sprintf('\\textbf{invar} &= &%0.3f',1-var(Ddiff(:).*A(:)-wDTA(:).*A(:))/var(Ddiff(:)));
+text3 = strcat('\begin{tabular}{lcr}',invar3,'\\',bias3,'\end{tabular}');
+text(256+80,128,text3,'interpreter','latex','rotation',90,'horizontalalignment','center')
+axis off
+caxis(cax)
+
+% MIDDLE IMAGES
+
+subplot(3,3,2)
+imagesc(cax(1)*A)
+axis image
+hold on
+plot(gx,gy,'w-')
+% text and titles
+title(sprintf('buffered wavelet mask',sum(DT.*pass~=0)))
+axis off
+caxis(cax)
+
+subplot(3,3,5)
+[wA,s]=wavedec2(A,level,wavename);
+AT = waverec2(wA.*pass,sdiff,wavename);
+imagesc(cax(1)*AT)
+axis image
+hold on
+plot(gx,gy,'w-')
+% text and titles
+title(sprintf('threshold by area',sum(DT.*pass~=0)))
+bias4 = sprintf('\\textbf{bias} & = &%0.3e',abs((sum(A(:))-sum(AT(:)))/sum(A(:))));
+invar4 = sprintf('\\textbf{invar} &= &%0.3f',1-var(A(:)-AT(:))/var(A(:)));
+text4 = strcat('\begin{tabular}{lcr}',invar4,'\\',bias4,'\end{tabular}');
+text(128,290,text4,'interpreter','latex','horizontalalignment','center')
+axis off
+caxis(cax)
+
+
+colormap(bluewhitered(1000,1));
+
+
 %%
 % invariance curve for the classified image
 level=8;
@@ -157,7 +255,7 @@ set(lgd,'interpreter','latex')
 grid on
 %% CHOOSE HAAR WAVELET, CHOOSE percentile threshold to minimize bias
 wavename = 'haar';
-ptile = ptl(qc);
+ptile = 99.6;%ptl(qc);
 level = 8;
 
 [wA,sA]=wavedec2(A,level,wavename);

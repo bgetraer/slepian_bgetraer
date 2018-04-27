@@ -8,10 +8,10 @@ load(strcat('ptsGL',num2str(order)))
 load(strcat('im_tools',num2str(order)))
 load(strcat('im_endsSH',num2str(order)))
 
-%% CHOOSE HAAR WAVELET, CHOOSE 99.94 percentile threshold to minimize bias
+%% CHOOSE HAAR WAVELET, CHOOSE percentile threshold to minimize bias
 wavename = 'haar';
-ptile = 98.97;
-level = 10;
+ptile = 99.8; % this is the percentile at 90
+level = 8;
 
 [wdiff,sdiff]=wavedec2(Ddiff,level,wavename);
 abwdiff = abs(wdiff);
@@ -61,14 +61,19 @@ sum(yn(~ind))
 sum(DT(:)~=0)
 
 % sum(DT(:)~=0)/length(DT)
-%%
+%% MOVED TO WAVEINPOLY
 figure(3)
+clf
 subplot(3,1,1)
 imagesc(Ddiff)
 axis image
 hold on
 plot(gx,gy,'k-')
 colormap(bluewhitered(1000,1));
+title(sprintf('%d wavelets',sum(wdiff~=0)))
+text1 = sprintf('bias = %0.3e',abs((sum(Ddiff(:))-sum(Ddiff(:)))/sum(Ddiff(:))));
+text(300,150,text1)
+axis off
 
 subplot(3,1,2)
 imagesc(wDT)
@@ -76,6 +81,10 @@ axis image
 hold on
 plot(gx,gy,'k-')
 colormap(bluewhitered(1000,1));
+title(sprintf('%d wavelets',sum(DT~=0)))
+text2 = sprintf('bias = %0.3e',abs((sum(Ddiff(:))-sum(wDT(:)))/sum(Ddiff(:))));
+text(300,150,text2)
+axis off
 
 subplot(3,1,3)
 wDTA = waverec2(DT.*pass,sdiff,wavename);
@@ -84,6 +93,12 @@ axis image
 hold on
 plot(gx,gy,'k-')
 colormap(bluewhitered(1000,1));
+title(sprintf('%d wavelets',sum(DT.*pass~=0)))
+bias3 = sprintf('bias = %0.3e',abs((sum(Ddiff(:))-sum(wDTA(:)))/sum(Ddiff(:))));
+invar3 = sprintf('invar = %0.3f',1-var(Ddiff(:)-wDTA(:))/var(Ddiff(:)));
+text3 = strcat('\begin{tabular}{l}',invar3,'\\',bias3,'\end{tabular}');
+text(300,150,text3,'interpreter','latex')
+axis off
 
 % % f = 1:9
 % % F = reshape(f,[3 3])
