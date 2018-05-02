@@ -52,11 +52,11 @@ clear alphavar alphavarall blank cosi ESTresid ESTsignal ESTtotal ESTtotalresid 
     ftests G lmcosi_mat lmcosi_sum slepcoffs signal 
 % blank for the images
 shp = size(lond);
-filename = 'im_endsSH10';
+filename = 'im_seqSH10';
 % load(fullfile(datadir,filename))
-D = zeros([shp,2]);
+D = zeros([shp,size(thedates,2)]);
 % this is the time consuming bit... plm2xyz takes a while
-for i=[1 size(thedates,2)]
+for i=1:size(thedates,2)
     fprintf('i=%d of %d \nnow starting plm2xyz\n',i,size(thedates,2))
     [data]=plm2xyz(squeeze(potcoffs(i,:,:)),latd(:),lond(:)); % vector of solutions
     D(:,:,i) = reshape(data,shp);  % put the vector back into matrix form

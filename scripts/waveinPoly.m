@@ -34,49 +34,50 @@ end
 % GREENLAND
 [wd,s]=wavedec2(A,level,wavename);
 wd = wd*0+1;
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% areathresh = linspace(0.9,0,level-1);
+% 
+% pass = zeros(size(wd));
 
-areathresh = linspace(0.9,0.05,level-1);
-
-pass = zeros(size(wd));
-
-for i = 1:level-1
-    fprintf('level %d \n',i)
-    
-    index = levelin{i}(1:l(i)); % only look at one of the wavelet sequences
-    % per level
-    passlevel = zeros(size(index));
-    for in = index
-        %         fprintf('wavelet %d of %d \n',find(index==in),l(i))
-        thiswd = wd;
-        thiswd([1:in-1,in+1:end]) = 0;
-        wD = waverec2(thiswd,s,wavename);
-        xw = xp(wD(:)~=0);
-        yw = yp(wD(:)~=0);
-        pw = inpolygon(xw(:),yw(:),bx,by);
-        aw = sum(wD(:)~=0);
-        ainp = sum(pw(:)~=0);
-        passlevel(index==in) = (1-(aw-ainp)/aw > areathresh(i));
-%         % optional plotting
-%         imagesc(~wD)
-%         colormap(bone);
-%         axis image
-%         hold on;
-%         % Greenland
-%         plot(gx,gy,'k-')
-%         axis off
-%         pause(0.1)
-        
-    end
-    
-    pass(levelin{i}) = [passlevel, passlevel, passlevel];
-end
-
-pass(levelin{8})=1;
-pass(levelin{7})=1;
-
-filename = sprintf('pass%dlin',order);
-save(fullfile(datadir,filename),'pass')
+% for i = 1:level-1
+%     fprintf('level %d \n',i)
+%     
+%     index = levelin{i}(1:l(i)); % only look at one of the wavelet sequences
+%     % per level
+%     passlevel = zeros(size(index));
+%     for in = index
+%         %         fprintf('wavelet %d of %d \n',find(index==in),l(i))
+%         thiswd = wd;
+%         thiswd([1:in-1,in+1:end]) = 0;
+%         wD = waverec2(thiswd,s,wavename);
+%         xw = xp(wD(:)~=0);
+%         yw = yp(wD(:)~=0);
+%         pw = inpolygon(xw(:),yw(:),bx,by);
+%         aw = sum(wD(:)~=0);
+%         ainp = sum(pw(:)~=0);
+%         passlevel(index==in) = (1-(aw-ainp)/aw > areathresh(i));
+% %         % optional plotting
+% %         imagesc(~wD)
+% %         colormap(bone);
+% %         axis image
+% %         hold on;
+% %         % Greenland
+% %         plot(gx,gy,'k-')
+% %         axis off
+% %         pause(0.1)
+%         
+%     end
+%     
+%     pass(levelin{i}) = [passlevel, passlevel, passlevel];
+% end
+% 
+% pass(levelin{8})=1;
+% pass(levelin{7})=1;
+% 
+% filename = sprintf('pass%dlin2',order);
+% save(fullfile(datadir,filename),'pass')
 %%
+filename = sprintf('pass%dlin2',order);
 load(fullfile(datadir,filename))
 figure(6)
 clf
@@ -87,7 +88,7 @@ colormap(bone);
 axis image
 hold on;
 % Greenland
-plot(gx,gy,'k-')
+plot(bx,by,'w-')
 axis off
 pause(0.01)
 
@@ -153,8 +154,8 @@ axis image
 hold on
 plot(gx,gy,'k-')
 title(sprintf('%d wavelets, masked',sum(DT~=0)))
-bias2 = sprintf('\\textbf{bias} & = &%0.3e',abs((sum(Ddiff(:).*A(:))-sum(wDT(:).*A(:)))/sum(Ddiff(:))));
-invar2 = sprintf('\\textbf{invar} &= &%0.3f',1-var(Ddiff(:).*A(:)-wDT(:).*A(:))/var(Ddiff(:)));
+bias2 = sprintf('\\textbf{bias} & = &%0.3e',abs((sum(Ddiff(:).*A(:))-sum(wDT(:).*A(:)))/sum(Ddiff(:).*A(:))));
+invar2 = sprintf('\\textbf{invar} &= &%0.3f',1-var(Ddiff(:).*A(:)-wDT(:).*A(:))/var(Ddiff(:).*A(:)));
 text2 = strcat('\begin{tabular}{lcr}',invar2,'\\',bias2,'\end{tabular}');
 text(256+80,128,text2,'interpreter','latex','rotation',90,'horizontalalignment','center')
 axis off
@@ -168,8 +169,8 @@ hold on
 plot(gx,gy,'k-')
 % text and titles
 title(sprintf('%d wavelets, masked',sum(DT.*pass~=0)))
-bias3 = sprintf('\\textbf{bias} & = &%0.3e',abs((sum(Ddiff(:).*A(:))-sum(wDTA(:).*A(:)))/sum(Ddiff(:))));
-invar3 = sprintf('\\textbf{invar} &= &%0.3f',1-var(Ddiff(:).*A(:)-wDTA(:).*A(:))/var(Ddiff(:)));
+bias3 = sprintf('\\textbf{bias} & = &%0.3e',abs((sum(Ddiff(:).*A(:))-sum(wDTA(:).*A(:)))/sum(Ddiff(:).*A(:))));
+invar3 = sprintf('\\textbf{invar} &= &%0.3f',1-var(Ddiff(:).*A(:)-wDTA(:).*A(:))/var(Ddiff(:).*A(:)));
 text3 = strcat('\begin{tabular}{lcr}',invar3,'\\',bias3,'\end{tabular}');
 text(256+80,128,text3,'interpreter','latex','rotation',90,'horizontalalignment','center')
 axis off
@@ -203,9 +204,27 @@ text(128,290,text4,'interpreter','latex','horizontalalignment','center')
 axis off
 caxis(cax)
 
+subplot(3,3,8)
+
+ttl = sprintf('%s--%s',datestr(thedates(1),'mmmm yyyy'),datestr(thedates(end),'mmmm yyyy'));
+
+text(0.5,0.7,'\bfseries{Greenland Mass Wasting}','interpreter','latex',...
+    'horizontalalignment','center','fontsize',14)
+text(0.5,0.5,ttl,'interpreter','latex','horizontalalignment','center',...
+    'fontsize',12)
+
+axis off
+caxis(cax)
+cb = colorbar;
+set(cb,'Location', 'south','AxisLocation','out','ticks',[-3500 -1750 0 1500])
+ylabel(cb,'kg per m^2');
 
 colormap(bluewhitered(1000,1));
 
+%%
+
+bias3 = sprintf('\\textbf{bias} & = &%0.3e',abs((mean(Ddiff(:).*A(:))-mean(wDTA(:).*A(:)))/mean(Ddiff(:))))
+bias3 = sprintf('\\textbf{bias} & = &%0.3e',abs((sum(Ddiff(:).*A(:))-sum(wDTA(:).*A(:)))/sum(Ddiff(:))))
 
 %%
 % invariance curve for the classified image

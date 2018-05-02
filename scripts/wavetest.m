@@ -120,13 +120,10 @@ for j = 1:length(wname)
         er(i) = immse(Ddiff,wD{i});
         r2(i) = 1-var(Ddiff-wD{i})/var(Ddiff);
     end
-    plot(ptl,r2,'linewidth',2)
+    loglog(ptl,r2,'linewidth',2)
 end
 %
 legend(wname)
-
-% sum(sum(Ddiff))
-
 
 %%
 figure(1)

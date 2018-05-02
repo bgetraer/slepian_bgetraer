@@ -60,7 +60,9 @@ sum(yn(~ind))
 % number left
 sum(DT(:)~=0)
 
-% sum(DT(:)~=0)/length(DT)
+threshpass = DT~=0;
+filename = sprintf('thresh%d',order);
+save(fullfile(datadir,filename),'threshpass')
 %% MOVED TO WAVEINPOLY
 figure(3)
 clf
