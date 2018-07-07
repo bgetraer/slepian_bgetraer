@@ -1,4 +1,4 @@
-function [sf,vrnc] = modCoeff(thedates,y)
+function [sf,vrnc] = modCoeff(thedates,y,extraterms)
 %MODCOEFF Models coefficients, here designed for my wavelet coefficients,
 %using constant, linear, quadratic, annual and semiannual terms. We do an
 %unweighted inversion, and return the modeled signal and the variance of the
@@ -14,12 +14,14 @@ yearlength = 365.2422; % in days
 freqANNUAL = yearlength/recordlength;
 freqSEMI = yearlength/2/recordlength;
 
-freq8 = yearlength*8/recordlength;
+freq7 = yearlength*7.091/recordlength;
+freq6 = yearlength*5.25/recordlength;
 
 
 omega = 2*pi/freqANNUAL;
 phi = 2*pi/freqSEMI;
-theta = 2*pi/freq8;
+theta = 2*pi/freq7;
+gamma = 2*pi/freq6;
 
 Gc = ones(1,length(x));
 Glin = x;
@@ -29,13 +31,16 @@ GsinA = sin(omega.*x);
 GcosA = cos(omega.*x);
 GsinS = sin(phi.*x);
 GcosS = cos(phi.*x);
-Gsin8 = sin(theta.*x);
-Gcos8 = cos(theta.*x);
+Gsin7 = sin(theta.*x);
+Gcos7 = cos(theta.*x);
+Gsin6 = sin(gamma.*x);
+Gcos6 = cos(gamma.*x);
 
+if ~exist('extraterms','var')
 G = [Gc(:) Glin(:) Gquad(:) Gcub(:) GsinA(:) GcosA(:) GsinS(:) GcosS(:)];
-
-% G = [Gc(:) Glin(:) Gquad(:) Gcub(:) GsinA(:) GcosA(:) GsinS(:) GcosS(:) Gsin8(:) Gcos8(:)];
-
+else
+G = [Gc(:) Glin(:) Gquad(:) Gcub(:) GsinA(:) GcosA(:) GsinS(:) GcosS(:) Gsin7(:) Gcos7(:) Gsin6(:) Gcos6(:)];
+end
 
 mod = G\y;
 

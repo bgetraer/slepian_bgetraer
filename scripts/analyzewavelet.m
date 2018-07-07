@@ -12,6 +12,7 @@ load(strcat('im_endsSH',num2str(order)))
 wavename = 'haar';
 ptile = 99.8; % this is the percentile at 90
 level = 8;
+Ddiff =  D(:,:,end)-D(:,:,1);
 
 [wdiff,sdiff]=wavedec2(Ddiff,level,wavename);
 abwdiff = abs(wdiff);

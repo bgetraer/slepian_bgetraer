@@ -116,7 +116,7 @@ axis image
 hold on
 plot(gx,gy,'k-')
 title(sprintf('%d wavelets',sum(DT~=0)))
-bias2 = sprintf('\\textbf{bias} & = &%0.3e',abs((sum(Ddiff(:))-sum(wDT(:)))/sum(Ddiff(:))));
+bias2 = sprintf('\\textbf{bias} & = &%0.1e',abs((sum(Ddiff(:))-sum(wDT(:)))/sum(Ddiff(:))));
 invar2 = sprintf('\\textbf{invar} &= &%0.3f',1-var(Ddiff(:)-wDT(:))/var(Ddiff(:)));
 text2 = strcat('\begin{tabular}{lcr}',invar2,'\\',bias2,'\end{tabular}');
 text(-80,128,text2,'interpreter','latex','rotation',90,'horizontalalignment','center')
@@ -131,7 +131,7 @@ hold on
 plot(gx,gy,'k-')
 % text and titles
 title(sprintf('%d wavelets',sum(DT.*pass~=0)))
-bias3 = sprintf('\\textbf{bias} & = &%0.3e',abs((sum(Ddiff(:))-sum(wDTA(:)))/sum(Ddiff(:))));
+bias3 = sprintf('\\textbf{bias} & = &%0.1e',abs((sum(Ddiff(:))-sum(wDTA(:)))/sum(Ddiff(:))));
 invar3 = sprintf('\\textbf{invar} &= &%0.3f',1-var(Ddiff(:)-wDTA(:))/var(Ddiff(:)));
 text3 = strcat('\begin{tabular}{lcr}',invar3,'\\',bias3,'\end{tabular}');
 text(-80,128,text3,'interpreter','latex','rotation',90,'horizontalalignment','center')
@@ -154,7 +154,7 @@ axis image
 hold on
 plot(gx,gy,'k-')
 title(sprintf('%d wavelets, masked',sum(DT~=0)))
-bias2 = sprintf('\\textbf{bias} & = &%0.3e',abs((sum(Ddiff(:).*A(:))-sum(wDT(:).*A(:)))/sum(Ddiff(:).*A(:))));
+bias2 = sprintf('\\textbf{bias} & = &%0.2f',abs((sum(Ddiff(:).*A(:))-sum(wDT(:).*A(:)))/sum(Ddiff(:).*A(:))));
 invar2 = sprintf('\\textbf{invar} &= &%0.3f',1-var(Ddiff(:).*A(:)-wDT(:).*A(:))/var(Ddiff(:).*A(:)));
 text2 = strcat('\begin{tabular}{lcr}',invar2,'\\',bias2,'\end{tabular}');
 text(256+80,128,text2,'interpreter','latex','rotation',90,'horizontalalignment','center')
@@ -169,7 +169,7 @@ hold on
 plot(gx,gy,'k-')
 % text and titles
 title(sprintf('%d wavelets, masked',sum(DT.*pass~=0)))
-bias3 = sprintf('\\textbf{bias} & = &%0.3e',abs((sum(Ddiff(:).*A(:))-sum(wDTA(:).*A(:)))/sum(Ddiff(:).*A(:))));
+bias3 = sprintf('\\textbf{bias} & = &%0.3f',abs((sum(Ddiff(:).*A(:))-sum(wDTA(:).*A(:)))/sum(Ddiff(:).*A(:))));
 invar3 = sprintf('\\textbf{invar} &= &%0.3f',1-var(Ddiff(:).*A(:)-wDTA(:).*A(:))/var(Ddiff(:).*A(:)));
 text3 = strcat('\begin{tabular}{lcr}',invar3,'\\',bias3,'\end{tabular}');
 text(256+80,128,text3,'interpreter','latex','rotation',90,'horizontalalignment','center')
@@ -197,7 +197,7 @@ hold on
 plot(gx,gy,'w-')
 % text and titles
 title(sprintf('threshold by area',sum(DT.*pass~=0)))
-bias4 = sprintf('\\textbf{bias} & = &%0.3e',abs((sum(A(:))-sum(AT(:)))/sum(A(:))));
+bias4 = sprintf('\\textbf{bias} & = &%0.1e',abs((sum(A(:))-sum(AT(:)))/sum(A(:))));
 invar4 = sprintf('\\textbf{invar} &= &%0.3f',1-var(A(:)-AT(:))/var(A(:)));
 text4 = strcat('\begin{tabular}{lcr}',invar4,'\\',bias4,'\end{tabular}');
 text(128,290,text4,'interpreter','latex','horizontalalignment','center')

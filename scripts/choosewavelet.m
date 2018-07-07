@@ -16,7 +16,7 @@ level = 8;
 % and improvement over haar in invariance.
 wname = {'haar','fk4','bior3.7'};
 level = 10;
-ptl = linspace(96,100,50);
+ptl = sort([linspace(96,100,50),99.8,97.906,99.745]);
 Ddiff =  D(:,:,end)-D(:,:,1);
 
 
@@ -25,12 +25,12 @@ for i = 1:length(wname)
     [phi,psi,xval] = wavefun(wname{i});
     
     subplot(3,3,i*3-2)
-    plot(xval,psi)
+    plot(xval,psi,'linewidth',2)
     title(sprintf('%s wavelet',wname{i}))
     axis tight
 end
 %
-pthresh = 0.95;
+pthresh = 0.9;
 
 subplot(3,3,[2,3,5,6,8,9])
 cla

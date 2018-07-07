@@ -1,14 +1,13 @@
-function [ lon256, lat256 ] = box256(lond,latd)
-%BOX256 Resample a square scattered, possible warped grid on a 256x256 square
+function [ lon2N, lat2N ] = box2N(lond,latd,n)
+%BOX2N Resample a square scattered, possible warped grid on a 2^nx2^n square
 %mesh.
 
-refvector = linspace(1,size(lond,1),256);
+refvector = linspace(1,size(lond,1),2^n);
 
 [refx, refy] = ndgrid(1:size(lond,1),1:size(lond,2));
-[refx256,refy256] = ndgrid(refvector,refvector);
+[refx2N,refy2N] = ndgrid(refvector,refvector);
 
-lon256 = griddata(refx,refy,lond,refx256,refy256);
-lat256 = griddata(refx,refy,latd,refx256,refy256);
-
+lon2N = griddata(refx,refy,lond,refx2N,refy2N);
+lat2N = griddata(refx,refy,latd,refx2N,refy2N);
 end
 

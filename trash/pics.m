@@ -3,29 +3,10 @@ datadir = '/Users/benjamingetraer/Documents/JuniorPaper/slepian_bgetraer/datafil
 addpath(datadir)
 setworkspace('/Users/benjamingetraer/Documents/JuniorPaper/SH_Workspace');
 
-order = 11;
+order = 10;
 load(fullfile(datadir,sprintf('boxGL%d.mat',order)))
 load(fullfile(datadir,sprintf('ptsGL%d.mat',order)))
 
-% plot greenland and the outline of the box
-figure(1)
-clf 
-hold on
-greenland
-% the outline
-plot(lond(:,1),latd(:,1),'k-');
-plot(lond(:,end),latd(:,end),'k-');
-plot(lond(1,:),latd(1,:),'k-');
-plot(lond(end,:),latd(end,:),'k-');
-% the endpoints
-plot(lond(1,1),latd(1,1),'o',...
-    'MarkerF','r','MarkerE','k');
-plot(lond(end,end),latd(end,end),'o',...
-    'MarkerF','r','MarkerE','k');
-plot(lond(1,end),latd(1,end),'o',...
-    'MarkerF','r','MarkerE','k');
-plot(lond(end,1),latd(end,1),'o',...
-    'MarkerF','r','MarkerE','k');
 
 %% Image of Greenland mass and image basis
 figure(2)

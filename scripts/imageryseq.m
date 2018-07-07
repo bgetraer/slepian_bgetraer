@@ -1,79 +1,52 @@
+%**************************************************************************
+%   Script developed for "REGIONAL FORCING OF GREENLAND ICE LOSS 2002-2017"
+%   Spring 2018 Junior Paper, Princeton Department of Geosciences
+%
+%  
+%   SCRIPT 2
+%   Evaluate the GRACE spherical harmonic functions on the image grid for 
+%   each year in the time-series. ** WARNING: PLM2XYZ takes a lot of time
+%   and memory while running. Do not run the entire time-series unless you
+%   need it. For an example of how the script and images work, choose only 
+%   a few of the dates. ** A plotting routine of an existing time-series
+%   datafile can be run independently (see the end of the script).
+%   This is the second script in a series that all accomplish small
+%   pieces of the puzzle. 
+%   PREVIOUS: BOXGREENLAND.m
+%   NEXT: 
+%
+%   Benjamin Getraer bgetraer@princeton.edu
+%   Modified: 7/5/2018
+%   See also: BOXGREENLAND.m, PLM2GRID, GRACE2PLMT, PLM2XYZ
+%**************************************************************************
+
 addpath('/Users/benjamingetraer/Documents/JuniorPaper/slepian_bgetraer/functions')
 datadir = '/Users/benjamingetraer/Documents/JuniorPaper/slepian_bgetraer/datafiles';
 addpath(datadir)
 setworkspace('/Users/benjamingetraer/Documents/JuniorPaper/SH_Workspace');
 
-load('Greenland60data');
-load('ptsGL10')
-load('im_tools10')
-%% find peaks in Greenland signal
-figure(1)
-clf
-plot(thedates,ESTtotal)
-findpeaks(ESTtotal)
-% store index
-[pk,loc]=findpeaks(ESTtotal);
+load('ptsGL')
+load('im_tools')
 
-%% Get the LMCOSI coefficients for every image
-% shcoffs = G(:,1:20)*slepcoffs(:,1:20)';
-% 
-% % Create blank LMCOSI matrix
-L=60;
-% [~,~,~,blank,~,~,~,~,~,ronm]=addmon(L);
-% lmcosi_mat = zeros([size(blank) 1]) + blank;
-% 
-% % Create the coefficient blanks
-% cosi=blank(:,3:4);
-% 
-% % creat the full signal matrix
-% full_lmcosi = zeros([size(lmcosi_mat), size(shcoffs,2)]);
-% 
-% for i=1:size(shcoffs,2)
-%     % clear dummy matrices
-%     this_mat = lmcosi_mat;
-%     this_blank = cosi;
-%     % grab the coefficients of an alpha eigentaper and
-%     % re-index them in lmcosi format
-%     this_blank(ronm)=shcoffs(:,i);
-%     % Add them to the full matrix
-%     this_mat(:,3:4,1)=this_blank;
-%     
-%     % add to the full signal matrix
-%     full_lmcosi(:,:,i) = this_mat;
-% end
+%% Import the GRACE data
+% Get the CSR RL05 L=60 GRACE surface density coefficients
+[sdcoffs,~,thedates]=grace2plmt_inprogress('CSR','RL05','SD',0,60);
 
-[potcoffs,cal_errors,thedates]=grace2plmt_inprogress('CSR','RL05','SD',0,L);
-
-validrange = monthnum(1,2003,thedates):length(thedates); % crop off the first 7 months of untrustworthy data: 
-potcoffs = potcoffs(validrange,:,:);
+% crop off first 7 months of untrustworthy data (see Harig & Simons, 2016): 
+validrange = monthnum(1,2003,thedates):length(thedates); 
+sdcoffs = sdcoffs(validrange,:,:);
 thedates = thedates(validrange);
+
 %% Evaluate the signals on the grid
-clear alphavar alphavarall blank cosi ESTresid ESTsignal ESTtotal ESTtotalresid ...
-    ftests G lmcosi_mat lmcosi_sum slepcoffs signal 
-% blank for the images
-shp = size(lond);
-filename = 'im_seqSH10';
-% load(fullfile(datadir,filename))
-D = zeros([shp,size(thedates,2)]);
-% this is the time consuming bit... plm2xyz takes a while
-for i=1:size(thedates,2)
-    fprintf('i=%d of %d \nnow starting plm2xyz\n',i,size(thedates,2))
-    [data]=plm2xyz(squeeze(potcoffs(i,:,:)),latd(:),lond(:)); % vector of solutions
-    D(:,:,i) = reshape(data,shp);  % put the vector back into matrix form
-    % Save images
-    save(fullfile(datadir,filename),'D','thedates')
-end
-%%
-
-% Greenland lat lon
-gxy = greenland(10);
-% Greenland xy in the image basis
-gx = Fx(gxy(:,1),gxy(:,2));          
-gy = Fy(gxy(:,1),gxy(:,2));
-
+%   this is time consuming... plm2xyz takes a while
+D = plm2grid(sdcoffs,thedates,latd,lond);
+%% Plot the sequence as a movie
+% Load an existing file, or the one you just made
+load(fullfile(datadir,'im_seqSH'))
+% The differences between an image and the first image (Jan 2003)
 Dprime = D-D(:,:,1);
-
-figure(2)
+% Plot as a movie
+figure()
 for i=1:size(D,3)
     clf
     imagesc(Dprime(:,:,i));
@@ -84,13 +57,6 @@ for i=1:size(D,3)
     hold on;axis off;
     % Greenland
     plot(gx,gy,'k-')
-    title(sprintf('%s',datestr(thedates(i))))
+    title(sprintf('%s',datestr(thedates(i),'mmm YYYY')))
     pause(0.1)
 end
-%%
-month(thedates)
-
-% how mass has changed
-dp = diff(pk);
-mean(dp)
-std(dp)
