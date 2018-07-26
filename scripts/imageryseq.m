@@ -2,7 +2,6 @@
 %   Script developed for "REGIONAL FORCING OF GREENLAND ICE LOSS 2002-2017"
 %   Spring 2018 Junior Paper, Princeton Department of Geosciences
 %
-%  
 %   SCRIPT 2
 %   Evaluate the GRACE spherical harmonic functions on the image grid for 
 %   each year in the time-series. ** WARNING: PLM2XYZ takes a lot of time
@@ -13,7 +12,7 @@
 %   This is the second script in a series that all accomplish small
 %   pieces of the puzzle. 
 %   PREVIOUS: BOXGREENLAND.m
-%   NEXT: 
+%   NEXT: CHOOSEWAVELET.m
 %
 %   Benjamin Getraer bgetraer@princeton.edu
 %   Modified: 7/5/2018
@@ -39,6 +38,7 @@ thedates = thedates(validrange);
 
 %% Evaluate the signals on the grid
 %   this is time consuming... plm2xyz takes a while
+%   data is saved as datafile im_seqSH.mat
 D = plm2grid(sdcoffs,thedates,latd,lond);
 %% Plot the sequence as a movie
 % Load an existing file, or the one you just made

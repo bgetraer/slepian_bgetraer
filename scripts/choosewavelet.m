@@ -1,73 +1,49 @@
+%**************************************************************************
+%   Script developed for "REGIONAL FORCING OF GREENLAND ICE LOSS 2002-2017"
+%   Spring 2018 Junior Paper, Princeton Department of Geosciences
+%  
+%   Includes script for FIGURE 6
+%
+%   SCRIPT 3
+%   Tests various 2 dimensional wavelet decompositions on a test image in
+%   order to compare relative tradeoffs in variance and bias after partial
+%   reconstruction. The test image chosen in my example is the TOTAL change
+%   in Greenland mass over the GRACE time series.
+%   PREVIOUS: IMAGERYSEQ.m
+%   NEXT: ANALYZE WAVELET.m
+%
+%   Benjamin Getraer bgetraer@princeton.edu
+%   Modified: 7/25/2018
+%   See also: JP02FIG6, WAVEFUN, WAVEDEC2, WTHCOEF2, WAVEREC2
+%**************************************************************************
+
 addpath('/Users/benjamingetraer/Documents/JuniorPaper/slepian_bgetraer/functions')
 datadir = '/Users/benjamingetraer/Documents/JuniorPaper/slepian_bgetraer/datafiles';
 addpath(datadir)
 setworkspace('/Users/benjamingetraer/Documents/JuniorPaper/SH_Workspace');
 
-order = 10;
-load(strcat('ptsGL',num2str(order)))
-load(strcat('im_tools',num2str(order)))
-load(strcat('im_endsSH',num2str(order)))
-%%
-level = 8;
-% choose orthoganal wavelet for enery preservation
-% we choose one that is blocky - we don't want to overfit our test case.
-% choose fejer-korovkin for simplicity of representation (in minimum number
-% of wavelets needed to cover the image, orthogonality,
-% and improvement over haar in invariance.
+load('ptsGL')
+load('im_tools')
+load('im_seqSH')
+%% Parameters for the wavelet testing
+
+% Define test image (here the difference between the first date and last
+%   date of the GRACE time series. "D" is a datafile produced in PLM2GRID
+%   (see IMAGERYSEQ.m).
+testimage = D(:,:,end)-D(:,:,1);
+
+% Choose wavelets to test by MATLAB name. Here I chose to do 3 at a time
+%   for clarity of plotting. In order, the Haar, the Fejer-Korovkin 4, and
+%   the biorthoganal 3.7 wavelets are chosen for this example.
 wname = {'haar','fk4','bior3.7'};
+% Decomposition levels to include: 10 is the max for these wavelets on the
+%   256x256 grid.
 level = 10;
+
+% Thresholding percentiles: what below what percentile of wavelet 
+%   coefficient values do we throw away the data? Here I choose specific
+%   ones that will plot nicely.
 ptl = sort([linspace(96,100,50),99.8,97.906,99.745]);
-Ddiff =  D(:,:,end)-D(:,:,1);
 
-
-figure(1)
-for i = 1:length(wname)
-    [phi,psi,xval] = wavefun(wname{i});
-    
-    subplot(3,3,i*3-2)
-    plot(xval,psi,'linewidth',2)
-    title(sprintf('%s wavelet',wname{i}))
-    axis tight
-end
-%
-pthresh = 0.9;
-
-subplot(3,3,[2,3,5,6,8,9])
-cla
-hold on
-
-c = {'r','b','k'};
-for j = 1:length(wname)
-    [wdiff,sdiff]=wavedec2(Ddiff,level,wname{j});
-    abwdiff = abs(wdiff);
-    N = 1:level;
-        clear T er r2 wD b NC b
-    for i = 1:length(ptl)
-        T(i) = prctile(abwdiff,ptl(i));
-        NC{i} = wthcoef2('t',wdiff,sdiff,N,repmat(T(i),size(N)),'h');
-        wD{i} = waverec2(NC{i},sdiff,wname{j});
-        er(i) = immse(Ddiff,wD{i});
-        r2(i) = 1-var(Ddiff(:)-wD{i}(:))/var(Ddiff(:));
-        b(i) =  abs((sum(Ddiff(:))-sum(wD{i}(:)))/sum(Ddiff(:)));
-    end
-    hb{j} = plot(ptl,b,':','color',c{j},'linewidth',2);
-    h{j} = plot(ptl,r2,'color',c{j},'linewidth',2);
-    [~, qc(j)] = min(abs(r2-pthresh));  % where does the curve reach 90% invariance
-    QC = wthcoef2('t',wdiff,sdiff,N,repmat(T(qc(j)),size(N)),'h');
-    np(j) = sum(QC~=0);
-    Q{j} = waverec2(QC,sdiff,wname{j});
-end
-%
-for j = 1:length(wname)
-    txth{j}=strcat('\begin{tabular}{lr} \textbf{',wname{j},'} inv. &',...
-        num2str(np(j)), sprintf(' coefficients at %0.2f',pthresh), '\end{tabular}');
-    txtb{j}=strcat('\begin{tabular}{l} \textbf{',wname{j},'} bias \end{tabular}');
-end
-axis([96 100 ylim])
-plot(xlim,[pthresh pthresh],'--','color',0.6*[1 1 1],'linewidth',1)
-ylabel('image invariance or bias')
-xlabel('percentile threshold')
-lgd = legend([h{1} h{2} h{3} ,...
-    hb{1} hb{2} hb{3}],[txth txtb]);
-set(lgd,'interpreter','latex')
-grid on
+% Do the decompositions and generate the figure
+jp02fig6(testimage, wname, level, ptl)
