@@ -1,8 +1,7 @@
 %**************************************************************************
-%   Script developed for "REGIONAL FORCING OF GREENLAND ICE LOSS 2002-2017"
-%   Spring 2018 Junior Paper, Princeton Department of Geosciences
+%   Script developed for SENIOR THESIS, Princeton Department of Geosciences
 %
-%   SCRIPT 2
+%   SCRIPT 2.b
 %   Evaluate the GRACE spherical harmonic functions on the image grid for 
 %   each year in the time-series. ** WARNING: PLM2XYZ takes a lot of time
 %   and memory while running. Do not run the entire time-series unless you
@@ -10,13 +9,14 @@
 %   a few of the dates. ** A plotting routine of an existing time-series
 %   datafile can be run independently (see the end of the script).
 %   This is the second script in a series that all accomplish small
-%   pieces of the puzzle. 
-%   PREVIOUS: BOXGREENLAND.m
-%   NEXT: CHOOSEWAVELET.m
+%   pieces of the puzzle. THIS SCRIPT IS IMAGERYSEQ WITH THE BASIS
+%   ROTATED ~90 DEGREES AND SIZED 128x128
+%   PREVIOUS: BOXGREENLAND_B.m
+%   NEXT: CHOOSEWAVELET_B.m
 %
 %   Benjamin Getraer bgetraer@princeton.edu
 %   Modified: 7/5/2018
-%   See also: BOXGREENLAND.m, PLM2GRID, GRACE2PLMT, PLM2XYZ
+%   See also: IMAGERYSEQ, BOXGREENLAND.m, PLM2GRID, GRACE2PLMT, PLM2XYZ
 %**************************************************************************
 
 addpath('/Users/benjamingetraer/Documents/IndependentWork/slepian_bgetraer/functions')

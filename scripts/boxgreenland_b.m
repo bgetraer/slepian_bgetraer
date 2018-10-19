@@ -1,19 +1,18 @@
 %**************************************************************************
-%   Script developed for "REGIONAL FORCING OF GREENLAND ICE LOSS 2002-2017"
-%   Spring 2018 Junior Paper, Princeton Department of Geosciences
+%   Script altered for SENIOR THESIS, Princeton Department of Geosciences
 %
-%   Includes script for FIGURE 5
 %  
-%   SCRIPT 1
+%   SCRIPT 1.b
 %   Create grid for Greenland on a square 2^n grid using the cubed sphere.
 %   This is the first script in a series that all accomplish small
-%   pieces of the puzzle. 
-%   NEXT: IMAGERYSEQ.m
+%   pieces of the puzzle. THIS SCRIPT IS BOXGREENLAND WITH THE BASIS
+%   ROTATED ~90 DEGREES AND SIZED 128x128
+%   NEXT: IMAGERYSEQ_B.m
 %
 %   Benjamin Getraer bgetraer@princeton.edu
 %   Modified: 6/25/2018
-%   See also: PLM2XYZ, CUBE2SPHERE, SQUAREGRID, BOX2N, PLOTPLMGREENLAND,
-%   LAT_LON2IM, JP02FIG5
+%   See also: BOXGREENLAND, PLM2XYZ, CUBE2SPHERE, SQUAREGRID, BOX2N, 
+%   PLOTPLMGREENLAND, LAT_LON2IM, JP02FIG5
 %**************************************************************************
 
 addpath('/Users/benjamingetraer/Documents/IndependentWork/slepian_bgetraer/functions')
@@ -28,13 +27,15 @@ setworkspace('/Users/benjamingetraer/Documents/IndependentWork/SH_Workspace');
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Set the Euler angles to center around Greenland
-alpha = 0;
-beta = -0.31;
-gamma = 0.79;
+alpha = 0.8;
+beta = -0.35;
+gamma = 0.75;
 
-% Create a 256x256 grid around Greenland
+
+% Create a 128x128 grid around Greenland
 %   returns the coordinates of the grid points in lat/lon and cartesian
-[lond, latd, xprime, yprime, zprime] = squareGrid([],alpha,beta,gamma);
+n=7; % image with 2^n points
+[lond, latd, xprime, yprime, zprime] = squareGrid([],alpha,beta,gamma,[],[],n);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Global lat/lon to image basis interpolant functions
@@ -61,13 +62,13 @@ bx = Fx(buff(:,1),buff(:,2));
 by = Fy(buff(:,1),buff(:,2));
 
 %% FIGURE: GLOBAL v IMAGE BASIS:
-jp02fig5(xprime,yprime,zprime,lond,latd,gx,gy,bx,by,Fx,Fy)
+jp02fig5(xprime,yprime,zprime,lond,latd,gx,gy,bx,by,Fx,Fy,n)
 
 %% SAVE DATA TO IMPORT INTO OTHER SCRIPTS
 % The global grid points around Greenland
-filename1 = 'ptsGL.mat';
+filename1 = 'ptsGL_b.mat';
 save(fullfile(datadir,filename1),'xprime','yprime','zprime','latd','lond')
 
 % The image grid and tools around Greenland
-filename2 = 'im_tools.mat';
+filename2 = 'im_tools_b.mat';
 save(fullfile(datadir,filename2),'Fx','Fy','gx','gy','bx','by','areaGL')

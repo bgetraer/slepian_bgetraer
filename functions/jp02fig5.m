@@ -1,8 +1,10 @@
-function jp02fig5(xprime,yprime,zprime,lond,latd,gx,gy,bx,by,Fx,Fy)
+function jp02fig5(xprime,yprime,zprime,lond,latd,gx,gy,bx,by,Fx,Fy,n)
 %JP02FIG5 Creates Figure 5 from "REGIONAL FORCING OF GREENLAND ICE LOSS 
 %   2002?2017" Spring 2018 Junior Paper, Princeton Department of Geosciences
 %
 % last modified by: bgetraer@princeton.edu, 6/25/2018
+
+defval('n',8);
 
 % endpoints of the box
 x1=Fx(lond(1,1),latd(1,1));
@@ -66,19 +68,22 @@ title('Global basis')
 % Plot Greenland and the outline of the box in the image projection
 subplot(1,2,2)
 axis square tight
-set(gca,'ydir','reverse')
-
+set(gca,'ydir','reverse','box','on')
 hold on
+
 % endpoints
 plot([x1,x2,x3,x4],[y1,y2,y3,y4],'o',...
     'MarkerF','r','MarkerE','k');
 % Greenland
 plot(gx,gy,'k-')
 plot(bx,by,'k:')
-set(gca,'xtick',[0.5 32.5 64.5 128.5 256.5],'xticklabels',[1 32 64 128 256])
-set(gca,'ytick',[0.5 32.5 64.5 128.5 256.5],'yticklabels',[1 32 64 128 256])
-plotline1 = [0.5 2.5 4.5 8.5 16.5 32.5 64.5 128.5 256.5; 0.5 2.5 4.5 8.5 16.5 32.5 64.5 128.5 256.5];
-plotline2 = [1 1 1 1 1 1 1 1 1; 2.5 4.5 8.5 16.5 32.5 64.5 128.5 256.5 256.5];
+linetik = [0 2.^(1:n)]+0.5;
+tik = [0 2.^(5:n)]+0.5;
+tiklab = [1 2.^(5:n)];
+set(gca,'xtick',tik,'xticklabels',tiklab)
+set(gca,'ytick',tik,'yticklabels',tiklab)
+plotline1 = [linetik; linetik];
+plotline2 = [ones(1,n+1); [linetik(2:end),linetik(end)]];
 plot(plotline1,plotline2,'k')
 plot(plotline2,plotline1,'k')
 title('Image basis')
