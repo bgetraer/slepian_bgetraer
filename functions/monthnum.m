@@ -8,24 +8,30 @@ function [month_num, exact_date_num] = monthnum(MONTH,YEAR,thedates)
 %   month_num is a single integer that is the index corresponding to a 
 %       requested month and year.
 %   exact_date_num is the MATLAB datenumber corresponding to the median day
-%       the of the given monthly measurement.
+%       of the given monthly measurement.
 %
 % example:
 %       [potcoffs,cal_errors,thedates] = grace2plmt('CSR','RL05','SD',0);
 %       [month_num, exact_date_num] = plmt_monthnum(MONTH,YEAR,thedates);
 %       MONTH_YEAR_COEFF = potcoffs(month_num,:,:)
 %
+% SEE ALSO:
+%   DATENUM, 
+%
 % 12.28.2017 bgetraer@princeton.edu
 
-if ~sum(MONTH==1:12),error('MONTH is not an integer 1:12');end
-if ~sum(YEAR==2002:2017),...
+% ensure valid date request
+if ~any(MONTH==1:12),error('MONTH is not an integer 1:12');end
+if ~any(YEAR==2002:2017),...
         error('YEAR is not an integer within years of record');end
-if ~sum(month(thedates)==MONTH & year(thedates)==YEAR),...
+if ~any(month(thedates)==MONTH & year(thedates)==YEAR),...
         warning('MONTH, YEAR is not within provided record');end
 if any(month(thedates)==MONTH & year(thedates)==YEAR)
     the_date_num = thedates(month(thedates)==MONTH & year(thedates)==YEAR);
-else the_date_num = datenum(YEAR,MONTH,15);
+else, the_date_num = datenum(YEAR,MONTH,15);
 end
+
+% find and return nearest date
 [~, month_num] = min(abs(thedates-the_date_num));
 exact_date_num = thedates(month_num);
 end

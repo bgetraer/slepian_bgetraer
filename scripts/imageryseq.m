@@ -19,20 +19,29 @@
 %   See also: BOXGREENLAND.m, PLM2GRID, GRACE2PLMT, PLM2XYZ
 %**************************************************************************
 
-addpath('/Users/benjamingetraer/Documents/IndependentWork/slepian_bgetraer/functions')
-datadir = '/Users/benjamingetraer/Documents/IndependentWork/slepian_bgetraer/datafiles';
-addpath(datadir)
-setworkspace('/Users/benjamingetraer/Documents/IndependentWork/SH_Workspace');
+% locate slepian_bgetraer function and datafile directories, and set workspace
+homedir = '/Users/benjamingetraer/Documents/IndependentWork/slepian_bgetraer/';
+functiondir = fullfile(homedir,'functions');
+datadir = fullfile(homedir,'datafiles');
+addpath(functiondir,datadir);   clear('homedir','functiondir');
+setworkspace();
 
+% load datafiles created in BOXGREENLAND.m
 load('ptsGL')
 load('im_tools')
 
-%% Import the GRACE data
+%% IMPORT THE GRACE DATA
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   Import the GRACE surface density coefficients, 2003--2017
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 % Get the CSR RL05 L=60 GRACE surface density coefficients
-[sdcoffs,~,thedates]=grace2plmt_inprogress('CSR','RL05','SD',0,60);
+[sdcoffs,~,thedates]=grace2plmt('CSR','RL05','SD',0);
 
 % crop off first 7 months of untrustworthy data (see Harig & Simons, 2016): 
 validrange = monthnum(1,2003,thedates):length(thedates); 
+% define the surface density spherical harmonic coefficients and dates
 sdcoffs = sdcoffs(validrange,:,:);
 thedates = thedates(validrange);
 
@@ -60,3 +69,7 @@ for i=1:size(D,3)
     title(sprintf('%s',datestr(thedates(i),'mmm YYYY')))
     pause(0.1)
 end
+
+%**************************************************************************
+%   End of IMAGERYSEQ
+%**************************************************************************

@@ -1,18 +1,46 @@
-addpath('/Users/benjamingetraer/Documents/JuniorPaper/slepian_bgetraer/functions')
-datadir = '/Users/benjamingetraer/Documents/JuniorPaper/slepian_bgetraer/datafiles';
-addpath(datadir)
-setworkspace('/Users/benjamingetraer/Documents/JuniorPaper/SH_Workspace');
+%**************************************************************************
+%   Script developed for "REGIONAL FORCING OF GREENLAND ICE LOSS 2002-2017"
+%   Spring 2018 Junior Paper, Princeton Department of Geosciences
+%
+%   SCRIPT 4
+%   
+%   PREVIOUS: CHOOSEWAVELET.m
+%   NEXT: WAVEINPOLY.m
+%
+%   Benjamin Getraer bgetraer@princeton.edu
+%   Modified: 7/25/2018
+%   See also: 
+%**************************************************************************
+
+% locate slepian_bgetraer function and datafile directories, and set workspace
+homedir = '/Users/benjamingetraer/Documents/IndependentWork/slepian_bgetraer/';
+functiondir = fullfile(homedir,'functions');
+datadir = fullfile(homedir,'datafiles');
+addpath(functiondir,datadir);   clear('homedir','functiondir');
+setworkspace();
+
+
+% load datafiles created in BOXGREENLAND.m and IMAGERYSEQ.m
+load('ptsGL')
+load('im_tools')
+load('im_seqSH')
 
 order = 10;
-load(strcat('ptsGL',num2str(order)))
-load(strcat('im_tools',num2str(order)))
-load(strcat('im_endsSH',num2str(order)))
+%% PERFORM DECONSTRUCTION ON THE FULL TIMESERIES DIFFERENCE IMAGE
 
-%% CHOOSE HAAR WAVELET, CHOOSE percentile threshold to minimize bias
-wavename = 'haar';
-ptile = 99.8; % this is the percentile at 90
-level = 8;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   Caluculate coefficient percentile threshold
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% the difference between the first and last date in the timeseries
 Ddiff =  D(:,:,end)-D(:,:,1);
+wavename = 'haar';
+invarT = 0.90; % invariance threshold
+% this is the percentile at 90% invar
+[ptile, level] = prctileThold(Ddiff, invarT,wavename); 
+
+
+
 
 [wdiff,sdiff]=wavedec2(Ddiff,level,wavename);
 abwdiff = abs(wdiff);

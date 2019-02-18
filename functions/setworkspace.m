@@ -2,7 +2,7 @@ function [] = setworkspace( directory )
 %SETWORKSPACE sets the matlab environment 'IFILES' for use with the
 %'SLEPIAN_XXXX' function folders.
 %
-%INPUT
+% INPUT
 %   directory       the name of the directory containing the 'SLEPIAN_XXXX' 
 %                       suite of functions (string)
 %
@@ -11,12 +11,15 @@ function [] = setworkspace( directory )
 %       current path
 %
 % Last modified by bgetraer@princeton.edu, 11/23/2017
+
+% default is set for me
 if exist('directory','var')==0 
-    directory = '/Users/benjamingetraer/Documents/JuniorPaper/SH_Workspace';
+    directory = '/Users/benjamingetraer/Documents/IndependentWork/SH_Workspace';
 end
 
+% set IFILES
 setenv('IFILES',directory);
-
+% add the slepian directories to the path
 addpath(fullfile(getenv('IFILES'),'slepian_alpha'),...
     fullfile(getenv('IFILES'),'slepian_alpha','REGIONS'),...
     fullfile(getenv('IFILES'),'slepian_bravo'),...

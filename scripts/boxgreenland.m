@@ -16,10 +16,12 @@
 %   LAT_LON2IM, JP02FIG5
 %**************************************************************************
 
-addpath('/Users/benjamingetraer/Documents/IndependentWork/slepian_bgetraer/functions')
-datadir = '/Users/benjamingetraer/Documents/IndependentWork/slepian_bgetraer/datafiles';
-addpath(datadir)
-setworkspace('/Users/benjamingetraer/Documents/IndependentWork/SH_Workspace');
+% locate slepian_bgetraer function and datafile directories, and set workspace
+homedir = '/Users/benjamingetraer/Documents/IndependentWork/slepian_bgetraer/';
+functiondir = fullfile(homedir,'functions');
+datadir = fullfile(homedir,'datafiles');
+addpath(functiondir,datadir);   clear('homedir','functiondir');
+setworkspace();
 
 %% SET UP THE GRID AROUND GREENLAND
 
@@ -47,8 +49,8 @@ gamma = 0.79;
 
 % Greenland lat/lon coordinates
 gxy = greenland(10);
-buff=greenland(10,0.5);
-% Greenlan area transformation
+buff = greenland(10,0.5);
+% Greenland area transformation
 % Since Int should have units of (fn * m^2), need to go from fractional
 %   sphere area to real area.  If the fn is surface density, this output is
 %   in kilograms.  Then change the units from kg to Gt in METRIC tons.
@@ -71,3 +73,7 @@ save(fullfile(datadir,filename1),'xprime','yprime','zprime','latd','lond')
 % The image grid and tools around Greenland
 filename2 = 'im_tools.mat';
 save(fullfile(datadir,filename2),'Fx','Fy','gx','gy','bx','by','areaGL')
+
+%**************************************************************************
+%   End of BOXGREENLAND
+%**************************************************************************

@@ -1,8 +1,12 @@
-function jp02fig6(testimage, wname, level, ptl)
+function jp02fig6(originalimage, wname, level, ptl)
 %JP02FIG6 Creates Figure 6 from "REGIONAL FORCING OF GREENLAND ICE LOSS 
 %   2002-2017" Spring 2018 Junior Paper, Princeton Department of Geosciences
 %
+% SEE ALSO:
+%   WAVEFUN, WAVEDEC2, WTHCOEF2, WAVEREC2
+%
 % last modified by: bgetraer@princeton.edu, 7/25/2018
+
 
 % throw errors and warnings as necessary
 if length(wname)>3
@@ -28,21 +32,38 @@ end
 subplot(3,3,[2,3,5,6,8,9])
 cla
 hold on
-% color scheme
+% plotting color scheme
 c = {'r','b','k'};
 
 % Goal of 90% invariance (our somewhat arbitrarily 
     %   chosen baseline for "good"):
 pthresh = 0.9;
 
+% initialize variables for outer loop
+hb = cell(1,length(wname));
+h = cell(1,length(wname));
+qc = zeros(1,length(wname));
+np = zeros(1,length(wname));
+Q = cell(1,length(wname));
+txth = cell(1,length(wname));
+txtb = cell(1,length(wname));
+
+
 % Loop over each wavelet
 for j = 1:length(wname)
     % perform the wavelet deconstruction
-    [wdiff,sdiff]=wavedec2(testimage,level,wname{j});
+    [wdiff,sdiff]=wavedec2(originalimage,level,wname{j});
     % absolute values of wavelet coefficients
     abwdiff = abs(wdiff);
     N = 1:level;
-    clear T er r2 wD b NC b
+    
+    % initialize variables for inner loop
+    T = zeros(1,length(ptl)); 
+    NC = cell(1,length(ptl));
+    wD = cell(1,length(wname));
+    er = zeros(1,length(ptl));
+    r2 = zeros(1,length(ptl));
+    b = zeros(1,length(ptl));
     
     % Evaluate image reconstruction after throwing away a certain
     %   percentile of the wavelet coefficients
@@ -55,13 +76,13 @@ for j = 1:length(wname)
         wD{i} = waverec2(NC{i},sdiff,wname{j});
         % mean squared error between the original and the thresholded
         %   reconstructions
-        er(i) = immse(testimage,wD{i});
+        er(i) = immse(originalimage,wD{i});
         % pixel-to-pixel invariance between the original and the 
         %   thresholded reconstructions
-        r2(i) = 1-var(testimage(:)-wD{i}(:))/var(testimage(:));
+        r2(i) = iminvar(wD{i}, originalimage);
         % total energy loss (bias) between the original and the 
         %   thresholded reconstructions
-        b(i) =  abs((sum(testimage(:))-sum(wD{i}(:)))/sum(testimage(:)));
+        b(i) =  imbias(wD{i}, originalimage);
     end
     
     % plotting routines
