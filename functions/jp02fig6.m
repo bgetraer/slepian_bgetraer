@@ -103,7 +103,7 @@ for j = 1:length(wname)
     txtb{j}=strcat('\begin{tabular}{l} \textbf{',wname{j},'} bias \end{tabular}');
 end
 % axis plotting and legend
-axis([96 100 ylim])
+axis([96 100 0 1])
 plot(xlim,[pthresh pthresh],'--','color',0.6*[1 1 1],'linewidth',1)
 ylabel('image invariance or bias')
 xlabel('percentile threshold')
