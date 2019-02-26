@@ -1,4 +1,4 @@
-function [ Fx,Fy ] = lat_lon2Im(lond,latd)
+function [ Fx,Fy,xp,yp ] = lat_lon2Im(lond,latd)
 %LAT_LON2IM Create interpolant functions that transform global lat/lon
 %   coordinates into their image basis.
 %

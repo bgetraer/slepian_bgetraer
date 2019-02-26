@@ -41,7 +41,7 @@ gamma = 0.79;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Global lat/lon to image basis interpolant functions
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-[ Fx,Fy ] = lat_lon2Im(lond,latd);
+[ Fx,Fy,xp,yp ] = lat_lon2Im(lond,latd);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Project specific Lat/Lon onto the Image basis
@@ -68,7 +68,7 @@ jp02fig5(xprime,yprime,zprime,lond,latd,gx,gy,bx,by,Fx,Fy)
 %% SAVE DATA TO IMPORT INTO OTHER SCRIPTS
 % The global grid points around Greenland
 filename1 = 'ptsGL.mat';
-save(fullfile(datadir,filename1),'xprime','yprime','zprime','latd','lond')
+save(fullfile(datadir,filename1),'xp','yp','xprime','yprime','zprime','latd','lond')
 
 % The image grid and tools around Greenland
 filename2 = 'im_tools.mat';

@@ -28,7 +28,7 @@ function [ ptile, level, threshpassindex, CT, S, C, T] = prctileThold( originali
 
 defval('target',0.9)
 defval('wname','haar')
-defval('level',floor(log(min(size(originalimage)))/log(2)))
+defval('level',wmaxlev(size(originalimage,wname)))
 
 switch nargin
     % Practical implementation

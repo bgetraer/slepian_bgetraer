@@ -1,39 +1,112 @@
-addpath('/Users/benjamingetraer/Documents/JuniorPaper/slepian_bgetraer/functions')
-datadir = '/Users/benjamingetraer/Documents/JuniorPaper/slepian_bgetraer/datafiles';
-addpath(datadir)
-setworkspace('/Users/benjamingetraer/Documents/JuniorPaper/SH_Workspace');
+%**************************************************************************
+%   Script developed for "REGIONAL FORCING OF GREENLAND ICE LOSS 2002-2017"
+%   Spring 2018 Junior Paper, Princeton Department of Geosciences
+%
+%   SCRIPT 5
+%   
+%   PREVIOUS: ANALYZEWAVELET.m
+%   NEXT: .m
+%
+%   Benjamin Getraer bgetraer@princeton.edu
+%   Modified: 2/22/2019
+%   See also: 
+%**************************************************************************
 
-order = 10;
-load(strcat('ptsGL',num2str(order)))
-load(strcat('im_tools',num2str(order)))
-load(strcat('im_endsSH',num2str(order)))
+% locate slepian_bgetraer function and datafile directories, and set workspace
+homedir = '/Users/benjamingetraer/Documents/IndependentWork/slepian_bgetraer/';
+functiondir = fullfile(homedir,'functions');
+datadir = fullfile(homedir,'datafiles');
+addpath(functiondir,datadir);   clear('homedir','functiondir');
+setworkspace();
 
-close all
-%%
-% find the points inside of Greenland
-a = inpolygon(xp(:),yp(:),bx,by);
-A = 1*reshape(a,size(xp));
+% load datafiles created in BOXGREENLAND.m and IMAGERYSEQ.m
+load ptsGL 
+load im_tools 
+load im_seqSH
+%% Spatial index for points in and around Greenland
 
-% plot
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   THE POINTS INSIDE OF GREENLAND
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+a = inpolygon(xp(:),yp(:),bx,by);   % array of points inside Greenland
+A = 1*reshape(a,size(xp));          % matrix of points inside Greenland
+
+% plot a visualization
 figure(1)
 clf
-imagesc(A)
+imshow(A)
 hold on
+title("mask of image points inside of Greenland")
 colormap(bone)
 plot(bx,by,'r','linewidth',2)
 plot(gx,gy,'k','linewidth',1)
-%% where are the different level?
-level = 8;
+%% Wavelet coefficient index by decomposition level
+
+
+originalimage = imread('lena_std.tif'); % the Lena test image
+originalimage = double(originalimage(:,:,3));
+
+sz = size(originalimage);
+wavename = 'haar';
+level = wmaxlev(sz,wavename);
+[C,S]=wavedec2(originalimage,level,wavename);
+Cmod = C*0;
+
+[ I, L ] = wavelevelINDEX( C,S );
+
+figure(1)
+
+for i=1:length(L)
+    Cmod(I{L(i)}) = C(I{L(i)});
+    imj = waverec2(Cmod,S,wavename);
+    figure(1)
+    clf
+    imshow(imj,[])
+    L(i)
+    pause(0.0000001)
+
+end
+
+%% 
+% Levels are stored in S from low to high resolution, high to low numbering
+%   followed by the dimensions of the original image. The lowest resolution
+%   level is repeated, as it contains "approximation coefficients" (which 
+%   have a single value over their support) in addition to "detail 
+%   coefficients" (which vary horizonatally, vertically, or diagonally).
+
+% level 1 for an nxn picture has (n/2)^2 coefficients. level max has 1.
+l_numbers = flip(1:size(S,1)-2);
+coefinlevel = flip(prod(S(2:end-1,:),2));
+
+levelin{1} = 1: coefinlevel(1) + 3*coefinlevel(2);
+levelin{2} = coefinlevel(1) + 3*coefinlevel(2) + (1 :3*coefinlevel(3));
+
+additup = 0;
+for i = (length(coefinlevel)):-1:1
+    if i == length(coefinlevel)
+        levelin{i} = 1: coefinlevel(i) + 3*coefinlevel(i);
+    else
+        levelin{i} = levelin{i+1}(end) + (1:3*coefinlevel(i));
+    end
+    additup = additup + length(levelin{i});
+end
+
+%%
+
 levelin{8} = 1:4*l(8);
 for i = (length(l)-1):-1:1
     % level i
     levelin{i} = levelin{i+1}(end) + (1:3*l(i));
 end
+
 %%
 % DETERMINE WHICH WAVELETS PASS AN AREA THRESHOLD WITHIN A BUFFERED
 % GREENLAND
+sz = size(A);
+wavename = 'haar';
+level = wmaxlevel(sz,wavename);
 [wd,s]=wavedec2(A,level,wavename);
-wd = wd*0+1;
+wd = ones(1,length(wd));
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % areathresh = linspace(0.9,0,level-1);
 % 
