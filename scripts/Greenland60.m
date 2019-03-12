@@ -22,16 +22,16 @@
 %
 % Last modified by bgetraer@princeton.edu, 1/4/2017
 %**************************************************************************
-addpath('/Users/benjamingetraer/Documents/JuniorPaper/slepian_bgetraer/functions')
-setworkspace('/Users/benjamingetraer/Documents/JuniorPaper/SH_Workspace');
-datadir = '/Users/benjamingetraer/Documents/JuniorPaper/slepian_bgetraer/datafiles';
+addpath('/Users/benjamingetraer/Documents/IndependentWork/slepian_bgetraer/functions')
+setworkspace('/Users/benjamingetraer/Documents/IndependentWork/SH_Workspace');
+datadir = '/Users/benjamingetraer/Documents/IndependentWork/slepian_bgetraer/datafiles';
 
 
 %% PART 1: Coefficients to timeseries and model calculations 
 % load the full expansion coefficients
 L = 60;
 [slepcoffs,slep_calerrors,thedates,TH,G,CC,V,N] = ...
-    grace2slept_inprogress('CSRRL05_60','greenland',0.5,L,[],[],[],[],'SD',0);
+    grace2slept('CSRRL05_60','greenland',0.5,L,[],[],[],[],'SD',0);
 
 % prep for residual analysis 
 validrange = monthnum(1,2003,thedates):length(thedates); % crop off the first 7 months of untrustworthy data: 

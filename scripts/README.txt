@@ -24,7 +24,7 @@ These scripts are designed to be implemented in a specific order:
 		IMPLEMENTS:		prctileThold(), histWTHCOEF()
 		CREATES:		threshpassindex.mat
 5	WAVEINPOLY.m
-		IMPLEMENTS:		
-		CREATES:
+		IMPLEMENTS:		wavelevelINDEX()
+		CREATES:		I, polypassindex
 6	
 7	

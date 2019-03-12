@@ -1,4 +1,5 @@
-function [ Flon2x,Flat2y,gx,gy,bx,by,contx,conty ] = projectMERRA( Vdata, thespacelim )
+function [ Flon2x,Flat2y,gx,gy,bx,by,contx,conty,azores,reykjavik] ...
+    = projectMERRA( Vdata, thespacelim )
 %PROJECTNETCDF Creates an interpolant function for projecting LAT LON onto
 %the basis of the variable matrix image. 
 %   Outputs the interpolant functions, and the locations of Greenland, a
@@ -12,6 +13,14 @@ function [ Flon2x,Flat2y,gx,gy,bx,by,contx,conty ] = projectMERRA( Vdata, thespa
 %   gx,gy       coordinates for greenland
 %   bx,by       coordinates for 0.5 deg buffer around greenland
 %   contx,conty coordinates for continents
+%   azores      coordinates for azores
+%   reykjavik   coordinates for reykjavik
+%
+% SEE ALSO:
+%   GRIDDEDINTERPOLANT
+%
+% Last modified by bgetraer@princeton.edu 3/9/2019
+
 
 % x and y limits in image basis
 xIMlim = [0 size(Vdata,1)]+0.5;
@@ -40,5 +49,7 @@ bx = Flon2x(buff(:,1)-360);
 by = Flat2y(buff(:,2));
 contx = Flon2x(XYZ(:,1)-360);
 conty = Flat2y(XYZ(:,2));
+azores = [Flon2x( -27.853785), Flat2y(38.471189)];
+reykjavik = [Flon2x(-21.933333), Flat2y(64.133333)];
 end
 

@@ -1,12 +1,12 @@
-addpath('/Users/benjamingetraer/Documents/JuniorPaper/slepian_bgetraer/functions')
-datadir = '/Users/benjamingetraer/Documents/JuniorPaper/slepian_bgetraer/datafiles';
+addpath('/Users/benjamingetraer/Documents/IndependentWork/slepian_bgetraer/functions')
+setworkspace('/Users/benjamingetraer/Documents/IndependentWork/SH_Workspace');
+datadir = '/Users/benjamingetraer/Documents/IndependentWork/slepian_bgetraer/datafiles';
 addpath(datadir)
-setworkspace('/Users/benjamingetraer/Documents/JuniorPaper/SH_Workspace');
 
 order = 10;
-load(strcat('ptsGL',num2str(order)))
-load(strcat('im_tools',num2str(order)))
-load(strcat('im_seqSH',num2str(order)))
+load(strcat('ptsGL'));%,num2str(order)))
+load(strcat('im_tools'));%,num2str(order)))
+load(strcat('im_seqSH'));%,num2str(order)))
 load(strcat('thresh',num2str(order)))
 load(strcat('pass',num2str(order),'lin2'))
 %% image mask

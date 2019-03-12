@@ -2,9 +2,9 @@
 % Integrated Mass trend 
 % Last modified by bgetraer@princeton.edu, 1/3/2017
 %**************************************************************************
-addpath('/Users/benjamingetraer/Documents/JuniorPaper/slepian_bgetraer/functions')
-setworkspace('/Users/benjamingetraer/Documents/JuniorPaper/SH_Workspace');
-datadir = '/Users/benjamingetraer/Documents/JuniorPaper/slepian_bgetraer/datafiles';
+addpath('/Users/benjamingetraer/Documents/IndependentWork/slepian_bgetraer/functions')
+setworkspace('/Users/benjamingetraer/Documents/IndependentWork/SH_Workspace');
+datadir = '/Users/benjamingetraer/Documents/IndependentWork/slepian_bgetraer/datafiles';
 % Get 'thedates','ESTtotal','ESTtotalresid','total','alphavarall' from GREENLAND60.m
 load(fullfile(datadir,'Greenland60data'));
 

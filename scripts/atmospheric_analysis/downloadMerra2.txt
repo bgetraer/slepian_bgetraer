@@ -1,0 +1,30 @@
+// **************************************************************************
+// Process for downloading Merra2 data netCDF files
+// Merra2 Data from:
+// https://disc.gsfc.nasa.gov/datasets?keywords=%22MERRA-2%22&page=1&source=Models%2FAnalyses%20MERRA-2&temporalResolution=6%20hours
+// **************************************************************************
+
+
+// 1	open url
+open https://disc.gsfc.nasa.gov/datasets?keywords=%22MERRA-2%22
+
+// 2	navigate to M2I6NPANA: MERRA-2 inst6_3d_ana_Np
+
+// 3	subset/getdata
+
+// 4	choose subset options
+
+// 5 	choose NetCDF output
+
+// 6	download links list to a new download directory 
+
+Documents/IndependentWork/slepian_bgetraer/datafiles/MERRA2/newfolder
+
+// 8 	run download command on text file of links
+
+cd Documents/IndependentWork/slepian_bgetraer/datafiles/MERRA2/cookies
+
+myDir=Documents/IndependentWork/slepian_bgetraer/datafiles/MERRA2/newfolder
+
+wget --user bgetraer --password hujguG-3mocgy-kixhiw --load-cookies ~/.urs_cookies --save-cookies ~/.urs_cookies --auth-no-challenge=on --keep-session-cookies --content-disposition -i ~/$myDir/urls.txt -P ~/$myDir
+

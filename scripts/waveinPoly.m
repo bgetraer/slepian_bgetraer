@@ -26,10 +26,11 @@ load im_seqSH
 %% Spatial index for points in and around Greenland
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%   THE POINTS INSIDE OF GREENLAND
+%   MASK OF GREENLAND IN IMAGE BASIS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+sz = size(xp);
 a = inpolygon(xp(:),yp(:),bx,by);   % array of points inside Greenland
-A = 1*reshape(a,size(xp));          % matrix of points inside Greenland
+A = 1*reshape(a,sz);                % matrix of points inside Greenland
 
 % plot a visualization
 figure(1)
@@ -40,122 +41,86 @@ title("mask of image points inside of Greenland")
 colormap(bone)
 plot(bx,by,'r','linewidth',2)
 plot(gx,gy,'k','linewidth',1)
-%% Wavelet coefficient index by decomposition level
 
+save(fullfile(datadir,'GLimagemask'),'A')
+%% Visualization of level indexing
 
-originalimage = imread('lena_std.tif'); % the Lena test image
-originalimage = double(originalimage(:,:,3));
-
-sz = size(originalimage);
-wavename = 'haar';
-level = wmaxlev(sz,wavename);
-[C,S]=wavedec2(originalimage,level,wavename);
-Cmod = C*0;
-
-[ I, L ] = wavelevelINDEX( C,S );
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   IMAGE RECONSTRUCTION BY DECOMPOSITION LEVEL
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 figure(1)
+wavelevelINDEX('test');
 
-for i=1:length(L)
-    Cmod(I{L(i)}) = C(I{L(i)});
-    imj = waverec2(Cmod,S,wavename);
-    figure(1)
-    clf
-    imshow(imj,[])
-    L(i)
-    pause(0.0000001)
+%% Threshold by spatial support within Greenland
 
-end
-
-%% 
-% Levels are stored in S from low to high resolution, high to low numbering
-%   followed by the dimensions of the original image. The lowest resolution
-%   level is repeated, as it contains "approximation coefficients" (which 
-%   have a single value over their support) in addition to "detail 
-%   coefficients" (which vary horizonatally, vertically, or diagonally).
-
-% level 1 for an nxn picture has (n/2)^2 coefficients. level max has 1.
-l_numbers = flip(1:size(S,1)-2);
-coefinlevel = flip(prod(S(2:end-1,:),2));
-
-levelin{1} = 1: coefinlevel(1) + 3*coefinlevel(2);
-levelin{2} = coefinlevel(1) + 3*coefinlevel(2) + (1 :3*coefinlevel(3));
-
-additup = 0;
-for i = (length(coefinlevel)):-1:1
-    if i == length(coefinlevel)
-        levelin{i} = 1: coefinlevel(i) + 3*coefinlevel(i);
-    else
-        levelin{i} = levelin{i+1}(end) + (1:3*coefinlevel(i));
-    end
-    additup = additup + length(levelin{i});
-end
-
-%%
-
-levelin{8} = 1:4*l(8);
-for i = (length(l)-1):-1:1
-    % level i
-    levelin{i} = levelin{i+1}(end) + (1:3*l(i));
-end
-
-%%
-% DETERMINE WHICH WAVELETS PASS AN AREA THRESHOLD WITHIN A BUFFERED
-% GREENLAND
-sz = size(A);
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   GENERATE UNIFORM WAVELET DECOMPOSITION DATA
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 wavename = 'haar';
-level = wmaxlevel(sz,wavename);
-[wd,s]=wavedec2(A,level,wavename);
-wd = ones(1,length(wd));
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% areathresh = linspace(0.9,0,level-1);
-% 
-% pass = zeros(size(wd));
+level = wmaxlev(sz,wavename);
+[C,S]=wavedec2(A,level,wavename);
+C0 = zeros(1,length(C));
 
-% for i = 1:level-1
-%     fprintf('level %d \n',i)
-%     
-%     index = levelin{i}(1:l(i)); % only look at one of the wavelet sequences
-%     % per level
-%     passlevel = zeros(size(index));
-%     for in = index
-%         %         fprintf('wavelet %d of %d \n',find(index==in),l(i))
-%         thiswd = wd;
-%         thiswd([1:in-1,in+1:end]) = 0;
-%         wD = waverec2(thiswd,s,wavename);
-%         xw = xp(wD(:)~=0);
-%         yw = yp(wD(:)~=0);
-%         pw = inpolygon(xw(:),yw(:),bx,by);
-%         aw = sum(wD(:)~=0);
-%         ainp = sum(pw(:)~=0);
-%         passlevel(index==in) = (1-(aw-ainp)/aw > areathresh(i));
-% %         % optional plotting
-% %         imagesc(~wD)
-% %         colormap(bone);
-% %         axis image
-% %         hold on;
-% %         % Greenland
-% %         plot(gx,gy,'k-')
-% %         axis off
-% %         pause(0.1)
-%         
-%     end
-%     
-%     pass(levelin{i}) = [passlevel, passlevel, passlevel];
-% end
-% 
-% pass(levelin{8})=1;
-% pass(levelin{7})=1;
-% 
-% filename = sprintf('pass%dlin2',order);
-% save(fullfile(datadir,filename),'pass')
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   FIND THE WAVELETS WHICH PASS THE THRESHOLD
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+[ I, L, coefinlevel] = wavelevelINDEX( C,S );
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% the area threshold a wavelet of a given level must occupy within the
+% polygon (by percent of wavelet support) in order to pass.
+%   highest resolution, 90%
+%   top two lowest resolution, take them all
+areathresh = [linspace(0.9,0,level-1) 0];
+
+% initialize pass array 
+polygonpassindex = zeros(size(C));
+if lengthyProcessFlag('wavelet in polygon index')
+    for i = 1:level
+        fprintf('level %d \n',i)
+        % if we are keeping them all anyways!
+        if areathresh(i)==0
+            polygonpassindex(I{i})=1;
+        else
+            % only look at one of the wavelet sequences
+            index = I{i}(1:coefinlevel(i));
+            % passes per level
+            passlevel = zeros(size(index));
+            for in = index
+                fprintf('wavelet %d of %d \n',find(index==in),coefinlevel(i))
+                Cmod = C0;
+                Cmod(in) = 1;
+                imj = waverec2(Cmod,S,wavename);
+                xw = xp(imj(:)~=0);
+                yw = yp(imj(:)~=0);
+                pw = inpolygon(xw(:),yw(:),bx,by);
+                aw = sum(imj(:)~=0);
+                ainp = sum(pw(:)~=0);
+                passlevel(index==in) = (1-(aw-ainp)/aw > areathresh(i));
+            end
+            
+            polygonpassindex(I{i}) = [passlevel, passlevel, passlevel];
+        end
+    end
+    
+    filename = 'inGLpass';
+    save(fullfile(datadir,filename),'polygonpassindex')
+end
+%%
+figure(6)
+clf
+% [wd,s]=wavedec2(A,level,wavename);
+PASS = waverec2(polygonpassindex,S,wavename);
+imagesc(PASS)
+colormap(bone);
+axis image
 %%
 filename = sprintf('pass%dlin2',order);
 load(fullfile(datadir,filename))
 figure(6)
 clf
 % [wd,s]=wavedec2(A,level,wavename);
-PASS = waverec2(pass,s,wavename);
+PASS = waverec2(polygonpassindex,s,wavename);
 imagesc(PASS)
 colormap(bone);
 axis image
@@ -166,7 +131,7 @@ axis off
 pause(0.01)
 
 %% HERE IS A MONEY FIGURE
-
+Ddiff = D(:,:,end) - D(:,:,1);
 figure(3)
 clf
 subplot(3,3,1)
@@ -197,13 +162,13 @@ caxis(cax)
 axis off
 
 subplot(3,3,7)
-wDTA = waverec2(DT.*pass,sdiff,wavename);
+wDTA = waverec2(DT.*polygonpassindex,sdiff,wavename);
 imagesc(wDTA)
 axis image
 hold on
 plot(gx,gy,'k-')
 % text and titles
-title(sprintf('%d wavelets',sum(DT.*pass~=0)))
+title(sprintf('%d wavelets',sum(DT.*polygonpassindex~=0)))
 bias3 = sprintf('\\textbf{bias} & = &%0.1e',abs((sum(Ddiff(:))-sum(wDTA(:)))/sum(Ddiff(:))));
 invar3 = sprintf('\\textbf{invar} &= &%0.3f',1-var(Ddiff(:)-wDTA(:))/var(Ddiff(:)));
 text3 = strcat('\begin{tabular}{lcr}',invar3,'\\',bias3,'\end{tabular}');
@@ -235,13 +200,13 @@ axis off
 caxis(cax)
 
 subplot(3,3,9)
-wDTA = waverec2(DT.*pass,sdiff,wavename);
+wDTA = waverec2(DT.*polygonpassindex,sdiff,wavename);
 imagesc(wDTA.*A)
 axis image
 hold on
 plot(gx,gy,'k-')
 % text and titles
-title(sprintf('%d wavelets, masked',sum(DT.*pass~=0)))
+title(sprintf('%d wavelets, masked',sum(DT.*polygonpassindex~=0)))
 bias3 = sprintf('\\textbf{bias} & = &%0.3f',abs((sum(Ddiff(:).*A(:))-sum(wDTA(:).*A(:)))/sum(Ddiff(:).*A(:))));
 invar3 = sprintf('\\textbf{invar} &= &%0.3f',1-var(Ddiff(:).*A(:)-wDTA(:).*A(:))/var(Ddiff(:).*A(:)));
 text3 = strcat('\begin{tabular}{lcr}',invar3,'\\',bias3,'\end{tabular}');
@@ -257,19 +222,19 @@ axis image
 hold on
 plot(gx,gy,'w-')
 % text and titles
-title(sprintf('buffered wavelet mask',sum(DT.*pass~=0)))
+title(sprintf('buffered wavelet mask',sum(DT.*polygonpassindex~=0)))
 axis off
 caxis(cax)
 
 subplot(3,3,5)
 [wA,s]=wavedec2(A,level,wavename);
-AT = waverec2(wA.*pass,sdiff,wavename);
+AT = waverec2(wA.*polygonpassindex,sdiff,wavename);
 imagesc(cax(1)*AT)
 axis image
 hold on
 plot(gx,gy,'w-')
 % text and titles
-title(sprintf('threshold by area',sum(DT.*pass~=0)))
+title(sprintf('threshold by area',sum(DT.*polygonpassindex~=0)))
 bias4 = sprintf('\\textbf{bias} & = &%0.1e',abs((sum(A(:))-sum(AT(:)))/sum(A(:))));
 invar4 = sprintf('\\textbf{invar} &= &%0.3f',1-var(A(:)-AT(:))/var(A(:)));
 text4 = strcat('\begin{tabular}{lcr}',invar4,'\\',bias4,'\end{tabular}');
@@ -303,7 +268,7 @@ bias3 = sprintf('\\textbf{bias} & = &%0.3e',abs((sum(Ddiff(:).*A(:))-sum(wDTA(:)
 % invariance curve for the classified image
 level=8;
 wavename = 'haar';
-[wd,s]=wavedec2(A,level,wavename);
+[c,s]=wavedec2(A,level,wavename);
 
 pthresh = 0.99
 
@@ -321,10 +286,10 @@ clear T er r2 wD b NC b
 for i = 1:length(ptl)
     T(i) = prctile(abwA,ptl(i));
     NC{i} = wthcoef2('t',wdiff,sA,N,repmat(T(i),size(N)),'h');
-    wD{i} = waverec2(NC{i},sA,wavename);
-    er(i) = immse(Ddiff,wD{i});
-    r2(i) = 1-var(Ddiff(:)-wD{i}(:))/var(Ddiff(:));
-    b(i) =  abs((sum(Ddiff(:))-sum(wD{i}(:)))/sum(Ddiff(:)));
+    imj{i} = waverec2(NC{i},sA,wavename);
+    er(i) = immse(Ddiff,imj{i});
+    r2(i) = 1-var(Ddiff(:)-imj{i}(:))/var(Ddiff(:));
+    b(i) =  abs((sum(Ddiff(:))-sum(imj{i}(:)))/sum(Ddiff(:)));
 end
 hb = plot(ptl,b,':','color',c,'linewidth',2);
 h = plot(ptl,r2,'color',c,'linewidth',2);

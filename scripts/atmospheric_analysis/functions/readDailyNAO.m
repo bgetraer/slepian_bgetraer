@@ -20,6 +20,9 @@ function [ dailyNAOvalue ] = readDailyNAO( date, smoothing )
 % default to no smoothing
 defval('smoothing',1)
 
+dir = '/Users/benjamingetraer/Documents/IndependentWork/slepian_bgetraer';
+addpath(fullfile(dir,'/datafiles/NAO'));
+
 % read in and smooth the NAO daily index data
 NAO_daily = load('NAO_daily.ascii');
 NAOdates = datenum(NAO_daily(:,1:3));
