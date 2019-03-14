@@ -1,4 +1,4 @@
-function [ Flon2x,Flat2y,gx,gy,bx,by,contx,conty,azores,reykjavik] ...
+function [ Flon2x,Flat2y,gx,gy,bx,by,contx,conty,azores,reykjavik, X,Y,LON,LAT] ...
     = projectMERRA( Vdata, thespacelim )
 %PROJECTNETCDF Creates an interpolant function for projecting LAT LON onto
 %the basis of the variable matrix image. 
@@ -29,6 +29,15 @@ yIMlim = [0 size(Vdata,2)]+0.5;
 % Interpolant Functions
 Flon2x = griddedInterpolant(thespacelim(1,:),xIMlim);
 Flat2y = griddedInterpolant(thespacelim(2,:),flip(yIMlim));
+
+% Full meshgrid indexes
+lonpoints = linspace(thespacelim(1),thespacelim(3),size(Vdata,1));
+latpoints = linspace(thespacelim(2),thespacelim(4),size(Vdata,2));
+xpoints = Flon2x(lonpoints);
+ypoints = Flat2y(latpoints);
+[X,Y]       = meshgrid(xpoints,ypoints);
+[LON,LAT]   = meshgrid(lonpoints,latpoints);
+LON(LON<0)  = LON+360;
 
 
 % add GREENLAND and PLOTCONT function directory

@@ -56,7 +56,7 @@ save(fullfile(datadir,'threshpassindex'),'threshpassindex')
 %   Visualize what we have done
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-target = [0.95 0.99 1]; % the invariance targets
+target = [0.90 0.99 1]; % the invariance targets
 % originalimage = imread('lena_std.tif'); % the Lena test image
 % originalimage = double(originalimage(:,:,3));
 originalimage = refIm; % our Greenland difference map

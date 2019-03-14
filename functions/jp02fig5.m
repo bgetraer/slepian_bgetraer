@@ -1,6 +1,6 @@
 function jp02fig5(xprime,yprime,zprime,lond,latd,gx,gy,bx,by,Fx,Fy,n)
 %JP02FIG5 Creates Figure 5 from "REGIONAL FORCING OF GREENLAND ICE LOSS 
-%   2002?2017" Spring 2018 Junior Paper, Princeton Department of Geosciences
+%   2002-2017" Spring 2018 Junior Paper, Princeton Department of Geosciences
 %
 % last modified by: bgetraer@princeton.edu, 6/25/2018
 

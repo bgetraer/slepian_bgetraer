@@ -16,7 +16,7 @@ function [ filenames, yrs, thespacelim ] = ...
 %   fileyear                the year corresponding to the filename
 %   thespacelim             the spatial limits of the files
 % SEE ALSO:
-%   FLOORDATA
+%   GETMERRA2VAR, FLOORDATA
 %
 % Last modified by bgetraer@princeton.edu 3/12/2019
 

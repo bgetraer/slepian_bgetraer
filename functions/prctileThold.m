@@ -28,7 +28,7 @@ function [ ptile, level, threshpassindex, CT, S, C, T] = prctileThold( originali
 
 defval('target',0.9)
 defval('wname','haar')
-defval('level',wmaxlev(size(originalimage,wname)))
+defval('level',wmaxlev(size(originalimage),wname))
 
 switch nargin
     % Practical implementation
@@ -79,9 +79,9 @@ switch nargin
             error('enter full inputs, or "test"');
         end
         % check data directory if files exist
-        fileloc = 'datafiles/WAVELET_SUPPORT/lena_wavedec.mat';
+        fileloc = '/Users/benjamingetraer/Documents/IndependentWork/slepian_bgetraer/datafiles/WAVELET_SUPPORT/lena_wavedec.mat';
         if exist(fileloc,'file')
-            load 'datafiles/WAVELET_SUPPORT/lena_wavedec.mat'
+            load(fileloc)
             
             % If the files don't exist, make them!
         else

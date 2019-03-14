@@ -1,4 +1,4 @@
-function [ filename ] = meltMap( startdate, enddate, matDir )
+function [ filename ] = meltMap( startdate, enddate, Temp, matDir )
 %MELTMAP Loads surface temperature files for the date range asked for,
 % calculates the surface temperature using floorData for each day, and
 % saves the matrices in a matlab data file.
@@ -16,6 +16,7 @@ function [ filename ] = meltMap( startdate, enddate, matDir )
 datadir = fullfile('/Users/benjamingetraer/Documents/IndependentWork',...
     'slepian_bgetraer/datafiles/MERRA2');
 defval('matDir', fullfile(datadir,'MerraMat'))
+defval('Temp',273.15)
 
 % the date range
 thedate = datenum(startdate):1:datenum(enddate);
@@ -30,7 +31,11 @@ allmeltMap = zeros(size(floorT,1),size(floorT,2),length(thedate),...
 clear thetimedata floorT
 
 % file name and location
-filename = fullfile(matDir,'allmeltMap.mat');
+if Temp == 273.15
+    filename = fullfile(matDir,'allmeltMap.mat');
+else
+    filename = fullfile(matDir,sprintf('allmeltMap%s.mat',num2str(Temp)));
+end
 dateindex = 0;
 
 if ~exist(filename,'file')
@@ -41,7 +46,7 @@ if ~exist(filename,'file')
         load(fullfile(matDir,surfTfile))
         for j = 1:size(floorT,3)
             dateindex = dateindex + 1;
-            allmeltMap(:,:,dateindex) = meltThresh(floorT(:,:,j));
+            allmeltMap(:,:,dateindex) = meltThresh(floorT(:,:,j),[],Temp);
         end
         clear thetimedata floorT
     end
@@ -49,31 +54,3 @@ if ~exist(filename,'file')
 end
 
 end
-
-
-%% OLD CODE, USED TO MAKE FILES BY YEAR
-% filenames = cell(1,length(yrs));
-% fileyear = yrs;
-% for i = 1:length(yrs)
-%     y = yrs(i);
-%     % file name and location
-%     fileName = sprintf('meltMap%i',y);
-%     filenames{i} = fullfile(matDir,fileName);
-%     
-%     if ~exist(filenames{i},'file')
-%         % get the data for that year
-%         surfTfile = sprintf('floorT%i',y);
-%         load(fullfile(matDir,surfTfile))
-%         % initialize the meltmap matrix
-%         meltmap = zeros(size(floorT,1),size(floorT,2),size(floorT,3));
-%         for j = 1:size(floorT,3)
-%             meltmap(:,:,j) = meltThresh(floorT(:,:,j));
-%             
-%         end
-%         save(fullfile(matDir,fileName),'meltmap','thetimedata')
-%         
-%         clear meltmap thetimedata floorT
-%     end
-% end
-
-
