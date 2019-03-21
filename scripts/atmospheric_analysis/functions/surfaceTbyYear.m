@@ -40,12 +40,12 @@ filenames = cellstr(strcat(matDir,'/floorT',num2str(yrs(:)),'.mat'));
 if ~exist(filenames{1},'file')
     if lengthyProcessFlag('surfaceTbyYear')
         % BOUND FOR THE FLOOR
-        boundMP3 = fullfile(matDir,'Bound4theFloor.mp3');
-        if exist(boundMP3,'file')
-            [music,samplerate] = audioread(boundMP3);
-            player = audioplayer(music,samplerate);
-            play(player);
-        end
+%         boundMP3 = fullfile(matDir,'Bound4theFloor.mp3');
+%         if exist(boundMP3,'file')
+%             [music,samplerate] = audioread(boundMP3);
+%             player = audioplayer(music,samplerate);
+%             play(player);
+%         end
         
         for i = 1:length(yrs)
             y = yrs(i);

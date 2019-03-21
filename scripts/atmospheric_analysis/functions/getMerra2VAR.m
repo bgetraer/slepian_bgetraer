@@ -81,7 +81,11 @@ thedatestr = datestr(thedate,'yyyymmdd');
 fname = sprintf('%s.%s.%s.%s',version,datatype,thedatestr,'SUB.nc');
 
 if ~exist(fullfile(dir,fname),'file')
-    error('requested MERRA2 netCDF file does not exist in the directory')
+    fname = sprintf('inst6_3d_ana_Np_SUBSET.%s.nc4',thedatestr);
+    if ~exist(fullfile(dir,fname),'file')
+    et = 'requested MERRA2 netCDF file %s does not exist in the directory';
+    error(et,thedatestr)
+    end
 end
 
 end

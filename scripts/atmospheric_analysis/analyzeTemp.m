@@ -31,24 +31,26 @@ setworkspace('/Users/benjamingetraer/Documents/IndependentWork/SH_Workspace');
 %% LOAD NETCDF FILES AND SAVE THE "TEMPERATURE FLOOR"
 ncdfDir = fullfile(merra_dir,'MerraGrnlandTMEAN');
 matDir = fullfile(merra_dir,'MerraMat');
+firstdate = datenum(2003,01,01);
 startdate = datenum(2003,01,01);
 enddate = datenum(2018,01,01);
 alldates = startdate:enddate;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%n%%%%%%%%%%
-% Get the Surface Temperature for every day between 2003 and 2018
+% Get the Surface Temperature for every day between 1987 and 2018
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-[surfTFile, surfTyear, thespacelim] = surfaceTbyYear(startdate, enddate);
+[surfTFile, surfTyear, thespacelim] = surfaceTbyYear(firstdate, enddate);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Classify melt day for every day between 2003 and 2018:
+% Classify melt day for every day between 1987 and 2018:
 %   meanT(day) >    272.15 K    --> 1
 %   meanT(day) <=   272.15 K    --> 0
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-[meltmapFile] = meltMap(startdate, enddate);
+[meltmapFile] = meltMap(firstdate, enddate);
 
-%% SHOW TOTAL MELT DAYS
+%% SHOW TOTAL MELT DAYS OVER GRACE
 load(meltmapFile)
+GRACEmeltMap = allmeltMap(:,:,find(firstdate:enddate == startdate):end);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % TOTAL MELT DAYS INSIDE OF GREENLAND
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -57,15 +59,17 @@ totalmelt = sum(allmeltMap,3);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % DEFINE THE COORDINATE SYSTEM
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-[ ~,~,gx,gy,bx,by,~,~,~,~, X,Y, LON,LAT] = ...
+[ Flon2x,Flat2y,gx,gy,bx,by,contx,conty,azores,reykjavik, X,Y,LON,LAT] = ...
     projectMERRA( totalmelt, thespacelim );
 
+save(fullfile(matDir,'projectMERRAGL'),'Flon2x','Flat2y','gx','gy','bx',...
+    'by','X','Y','LON','LAT','contx','conty','azores','reykjavik');
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %   MASK OF GREENLAND IN IMAGE BASIS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 sz = size(X);
 maskarray = inpolygon(X(:),Y(:),bx,by);         % array of points inside Greenland
-mask = imfill(1*reshape(a,sz)');           % matrix of points inside Greenland
+mask = imfill(1*reshape(maskarray,sz)');           % matrix of points inside Greenland
 mask(mask==0) = nan;
 totalmelt = totalmelt.*mask;
 
@@ -92,8 +96,10 @@ axis tight
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 [ normMeltMap, avgMonthMelt ] = anomMonth( allmeltMap, alldates);
 
+save(fullfile(matDir,'normalizedMeltMap'),'normMeltMap','avgMonthMelt',...
+    'alldates','allmeltMap');
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %   PLOT MONTHLY ANOMALY
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -127,15 +133,16 @@ suptitle(sprintf('Average fraction of melt days, %i-%i',...
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 figure(3)
 clf
-cax = [0 30];
+cax = [-25 30];
 
 for i = 1:length(y)
     thisYear = y(i);
     thisYMelt = sum(normMeltMap(:,:,year(alldates)==thisYear),3);
 
+    total(i) = sum(thisYMelt(:));
     subplot(4,4,i)
     imj = thisYMelt.*mask;
-    imPlot(imj,'jet',cax)
+    imPlot(imj,parula,cax)
     hold on
     plot(bx,by,'k--')
     plot(gx,gy,'k')
@@ -195,7 +202,7 @@ suptitle(sprintf('Average fraction of 3 consecutive melt days, %i-%i',...
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 figure(5)
 clf
-cax = [0 30];
+cax = [-25 30];
 
 for i = 1:length(y)
     thisYear = y(i);
@@ -203,7 +210,7 @@ for i = 1:length(y)
 
     subplot(4,4,i)
     imj = thisYMelt.*mask;
-    imPlot(imj,'jet',cax)
+    imPlot(imj,'parula',cax)
     hold on
     plot(bx,by,'k--')
     plot(gx,gy,'k')
@@ -217,10 +224,17 @@ suptitle('3 Consecutive melt days anomaly by year, normalized by monthly mean')
 
 
 
-
-
-
 %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
 datadir = fullfile(dir,'datafiles');
 addpath(dir,datadir);
 
@@ -242,13 +256,19 @@ mass = interp2(xp,yp,GRACEdiff,MerraLonX,MerraLatY)';
 
 figure(10)
 clf
-plot(totalmelt(indexIN'),-mass(indexIN'),'x')
+scatter(totalmelt(indexIN'),-mass(indexIN'),5,MerraLonX(indexIN'),'x')
+colorbar
 
+figure(11)
+clf
+imagesc(MerraLonX(indexIN'))
+colorbar
 % temp = totalmelt.*indexIN';
 %%
 
 
 %%
+
 
 GRACEdiff = D(:,:,monthnum(6,2006,thedates)) - D(:,:,1);
 wavename = 'haar';

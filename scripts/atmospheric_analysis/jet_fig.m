@@ -19,15 +19,16 @@ addpath(fullfile(dir,'functions'))
 setworkspace('/Users/benjamingetraer/Documents/IndependentWork/SH_Workspace');
 
 
-datenum(2012,07,07:11);
+thesedates = datenum(2012,07,07:11);
 
 [Zdata,thetimedata,thespacelim,thelevdata] = ...
-    getMerra2VAR(datenum(2012,07,07:11), 'H');
+    getMerra2VAR(thesedates, 'H');
 
 [udata] = ...
-    getMerra2VAR(datenum(2012,07,07:11), 'U');
+    getMerra2VAR(thesedates, 'U');
 [vdata] = ...
-    getMerra2VAR(datenum(2012,07,07:11), 'V');
+    getMerra2VAR(thesedates, 'V');
+
 %% Project Greenland into the image basis
 [ Flon2x,Flat2y,gx,gy,bx,by,contx,conty ] = projectMERRA( Zdata, thespacelim );
 azores = [Flon2x( -27.853785), Flat2y(38.471189)];

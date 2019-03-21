@@ -37,7 +37,7 @@ xpoints = Flon2x(lonpoints);
 ypoints = Flat2y(latpoints);
 [X,Y]       = meshgrid(xpoints,ypoints);
 [LON,LAT]   = meshgrid(lonpoints,latpoints);
-LON(LON<0)  = LON+360;
+LON(LON<0)  = LON(LON<0)+360;
 
 
 % add GREENLAND and PLOTCONT function directory
