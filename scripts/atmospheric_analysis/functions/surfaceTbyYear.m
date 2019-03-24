@@ -1,10 +1,9 @@
 function [ filenames, yrs, thespacelim ] = ...
     surfaceTbyYear( startdate, enddate, ncdfDir, matDir )
 %SURFACETBYYEAR Loads netCDF files for the date range asked for,
-% calculates the surface temperature using floorData for each day, and
-% saves the matrices in a matlab data file by year.
-%   This function plays "Bound for the Floor" by Local H if the song is
-%   available in the matlab data file directory.
+% calculates the surface temperature using floorData and pulls the maximum
+% temperature for each day, and saves the matrices in a matlab data file by
+% year.
 %
 % INPUT
 %   startdate, enddate      define the date range requested, datenumbers
@@ -39,13 +38,6 @@ filenames = cellstr(strcat(matDir,'/floorT',num2str(yrs(:)),'.mat'));
 
 if ~exist(filenames{1},'file')
     if lengthyProcessFlag('surfaceTbyYear')
-        % BOUND FOR THE FLOOR
-%         boundMP3 = fullfile(matDir,'Bound4theFloor.mp3');
-%         if exist(boundMP3,'file')
-%             [music,samplerate] = audioread(boundMP3);
-%             player = audioplayer(music,samplerate);
-%             play(player);
-%         end
         
         for i = 1:length(yrs)
             y = yrs(i);
@@ -59,7 +51,23 @@ if ~exist(filenames{1},'file')
                     floorT(:,:,j) = floorData(tdata(:,:,:,j));
                 end
                 
-                save(filenames{i},'floorT','thetimedata')
+                maxfloorT = zeros(size(tdata,1),size(tdata,2),length(thedates));
+                % HERE WE NEED TO GO THROUGH EACH DAY, AND FOR EACH DAY
+                % FIND THE MAX T. Assume uniform time points per day.
+                tpd = size(floorT,3)/length(thedates);
+                if tpd ~= 1
+                    if tpd == round(tpd)
+                        for k = 1:length(thedates)
+                            thisrange = (k-1)*tpd+1 : tpd+(k-1)*tpd;
+                            maxfloorT(:,:,k) = max(floorT(:,:,thisrange),[],3);
+                        end
+                    else
+                        error('non-uniform time points per day')
+                    end
+                else
+                    maxfloorT = floorT;
+                end
+                save(filenames{i},'maxfloorT','thetimedata')
                 
                 clear tdata thetimedata floorT
             end
