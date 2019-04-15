@@ -18,13 +18,14 @@ open https://disc.gsfc.nasa.gov/datasets?keywords=%22MERRA-2%22
 
 // 6	download links list to a new download directory 
 
-Documents/IndependentWork/slepian_bgetraer/datafiles/MERRA2/newfolder
+Documents/IndependentWork/slepian_bgetraer/datafiles/MERRA2/MerraGrnlandOther
 
 // 8 	run download command on text file of links
 
 cd Documents/IndependentWork/slepian_bgetraer/datafiles/MERRA2/cookies
 
-myDir=Documents/IndependentWork/slepian_bgetraer/datafiles/MERRA2/newfolder
+dlDIR=Documents/IndependentWork/slepian_bgetraer/datafiles/MERRA2/MerraMonthPrecip
 
-wget --user bgetraer --password hujguG-3mocgy-kixhiw --load-cookies ~/.urs_cookies --save-cookies ~/.urs_cookies --auth-no-challenge=on --keep-session-cookies --content-disposition -i ~/$myDir/urls2013.txt -P ~/$myDir
+wget --user bgetraer --password hujguG-3mocgy-kixhiw --load-cookies ~/.urs_cookies --save-cookies ~/.urs_cookies --auth-no-challenge=on --keep-session-cookies --content-disposition -i ~/$dlDIR/linkMonthPrecip.txt -P ~/$dlDIR --no-check-certificate --inet4-only 
+
 

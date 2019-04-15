@@ -12,7 +12,7 @@ function [ isMeltingMap ] = meltThresh( tdata,filter,meltThreshold )
 % Last modified by bgetraer@princeton.edu 3/12/2019
 
 defval('filter',1)
-defval('meltThreshold',273.15)
+defval('meltThreshold',273.16)
 
 
 if length(size(tdata)) == 3

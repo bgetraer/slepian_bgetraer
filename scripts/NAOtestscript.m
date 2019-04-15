@@ -1,18 +1,32 @@
-NAO_daily = load('NAO_daily.ascii');
+NAO_daily = load(fullfile(datadir,'NAO','NAO_daily.ascii'));
 NAOdates = datenum(NAO_daily(:,1:3));
 NAOdata = NAO_daily(:,4);
 
+
+
 in2012 = year(NAOdates)==2012 & month(NAOdates)>=5 & month(NAOdates)<=9;
+x = NAOdates(in2012);
+y = NAOdata(in2012);
+
+
+%%
+figure(11)
+clf 
+hold on
+plot(x,y)
+datetick
+
+%%
+
+
+yM = movmean(y,1);
+
+
 
 figure(10)
 clf
 % plot(NAOdates(in2012),NAOdata(in2012));
 hold on
-
-
-x = NAOdates(in2012);
-y = NAOdata(in2012);
-yM = movmean(y,5);
 
 plot(x,yM)
 

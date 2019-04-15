@@ -1,4 +1,4 @@
-function [  ] = imPlot( theimage, cmap,cax )
+function [  ] = imPlot( theimage, cmap, cax )
 %IMDISPLAY Plot image rotating and using imagesc with independent colormap
 %
 % Last modified by bgetraer@princeton.edu 3/9/2019
@@ -18,7 +18,7 @@ hold on
     
 % color
 thisax = gca;
-colormap(thisax, cmap)
+% colormap(thisax, cmap)
 
 caxis(cax)
 % axis

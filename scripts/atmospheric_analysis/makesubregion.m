@@ -20,6 +20,7 @@ I = unique(subreg(:,1));
 LON = cell(size(regions));
 LAT = cell(size(regions));
 
+%%
 for j = 1:length(regions)
     thisLon = [];
     thisLat = [];
@@ -41,7 +42,9 @@ figure(1)
 clf
 hold on
 for i = 1:4
-    fill(subregions.LON{i}, subregions.LAT{i},colour{i})
+%     fill(subregions.LON{i}, subregions.LAT{i},colour{i})
+    fill(LON{i}, LAT{i},colour{i})
+
 end
 
 gxy = greenland(10);
@@ -148,6 +151,29 @@ for i = 1:4
     plot(322.42,72.57,'*')
 end
 center = [322.42,72.57];
+%% get coordinates for the entire ice sheet alone
+load(fullfile(datadir,'subregions'),'LON','LAT');
+
+LONice = [];
+LATice = [];
+
+for i = 1:length(sr.LON)
+    [LONice, LATice] = polybool('union',LONice,LATice,LON{i},LAT{i});
+end
+
+%%
+figure(5)
+clf
+hold on
+% [lonICE,latICE] = reducem(lonICE,latICE,0.05);
+[lonICE] = smooth(lonICE);
+latICE = smooth(latICE);
+fill(lonICE, latICE,'r')
+axis square
+%%
+for k = 1:4
+    AREA(k) = areaint(LAT{k},LON{k})*4*pi*fralmanac('a_EGM96','Earth')^2;
+end
 %% SAVE
-save(fullfile(datadir,'subregions'),'LON','LAT','LONGL','LATGL',...
-    'LONBUF','LATBUF','center');
+save(fullfile(datadir,'subregions'),'LON','LAT','AREA','LONGL','LATGL',...
+    'LONBUF','LATBUF','center','lonICE', 'latICE');

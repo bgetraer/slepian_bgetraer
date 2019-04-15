@@ -1,6 +1,6 @@
 
 
-NAO = dlmread(fullfile(datadir,'NAO_monthly.txt'));
+NAO = dlmread(fullfile(datadir,'NAO','NAO_monthly.txt'));
 NAOdates = datenum(NAO(:,1),NAO(:,2),repmat(15,size(NAO(:,1))));
 NAOdata = NAO(:,3);
 
@@ -23,7 +23,7 @@ clear year
 NAOt = NAOdates(year(NAOdates)>2002);
 NAOy = NAO6monthfilt(year(NAOdates)>2002);
 NAOy3 = NAO3yearfilt(year(NAOdates)>2002);
-NAOy2 = NAO6monthfilt2(year(NAOdates)>2002);
+NAOy2 = NAO6monthfilt(year(NAOdates)>2002);
 NAOyconv = NAO6monthconv(year(NAOdates)>2002);
 
 % rescale

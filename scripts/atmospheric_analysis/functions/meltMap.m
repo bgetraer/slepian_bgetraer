@@ -5,6 +5,7 @@ function [ filename ] = meltMap( startdate, enddate, Temp, matDir )
 %
 % INPUT
 %   startdate, enddate      define the date range requested, datenumbers
+%   Temp                    the temperature threshold (K)
 %   matDIR                  where the matlab datafiles are located
 % OUTPUT
 %   filename                this is the name of the new file made

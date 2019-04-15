@@ -1,0 +1,296 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>downsample_ts documentation</title><meta name="generator" content="MATLAB 8.0"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2014-12-30"><meta name="DC.source" content="downsample_ts_documentation.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, tt, code { font-size:12px; }
+pre { margin:0px 0px 20px; }
+pre.error { color:red; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1><tt>downsample_ts</tt> documentation</h1><!--introduction--><p>This function downsamples 1D or 3D data to monthly, yearly, hourly, minutely, or secondly data. This function was originally designed to create monthly mean time series from daily geospatial climate data.</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Syntax</a></li><li><a href="#2">Description</a></li><li><a href="#3">Example 1: A 1D time series</a></li><li><a href="#9">Example 2: A big 3D data set.</a></li><li><a href="#13">Author Info</a></li></ul></div><h2>Syntax<a name="1"></a></h2><pre>Z_downsamp = downsample_ts(Z,t)
+Z_downsamp = downsample_ts(...,'DownsamplingPeriod')
+Z_downsamp = downsample_ts(...,'function')
+[Z_downsamp,t_downsamp] = downsample_ts(...)</pre><h2>Description<a name="2"></a></h2><p><tt>Z_downsamp = downsample_ts(Z,t)</tt> downsamples <tt>Z</tt>, which must be provided with a corresponding time vector <tt>t</tt>.  <tt>Z</tt> can be 1D if its length matches the length of <tt>t</tt>.  If <tt>Z</tt> is three-dimensional, the length of its third dimension must match the length of <tt>t</tt>. For geospatial climate data arrays, dimensions of <tt>Z</tt> might correspond to lat x lon x time or lon x lat x time.</p><p><tt>Z_downsamp = downsample_ts(...,'DownsamplingPeriod')</tt> specifies a downsampling period as</p><div><ul><li><tt>'year'</tt></li><li><tt>'month'</tt> (default)</li><li><tt>'day'</tt></li><li><tt>'hour'</tt></li><li><tt>'minute'</tt></li><li><tt>'second'</tt></li></ul></div><p><tt>Z_downsamp = downsample_ts(...,'function')</tt> specifies a function to perform on the data. By default, monthly averages are taken, but you may wish to return the monthly median or monthly standard deviation or any of the functions listed below.</p><p>A note on functions which ignore NaNs: To get the monthly means of data while ignoring <tt>NaN</tt> values, you can use the <tt>'nanmean'</tt> option. The <tt>nanmean</tt> function is part of the Statistics Toolbox, but may also be found as part of the <a href="http://www.mathworks.com/matlabcentral/fileexchange/6837">NaN Suite on File Exchange</a>. However, the File Exchange versions mix up the order of dimensions and flags for <tt>nanstd</tt>, <tt>nanvar</tt>, <tt>nanmin</tt>, and <tt>nanmax</tt>, so you will need the Statistics Toolbox for those particular functions.  In all, the following functions are available:</p><div><ul><li><tt>'mean'</tt> (default)</li><li><tt>'nanmean'</tt> ignores <tt>NaN</tt> values in <tt>Z</tt>. Requires Statistics toolbox or NaN Suite.</li><li><tt>'median'</tt></li><li><tt>'nanmedian'</tt> ignores <tt>NaN</tt> values in <tt>Z</tt>. Requires Statistics toolbox or NaN Suite.</li><li><tt>'min'</tt></li><li><tt>'nanmin'</tt> ignores <tt>NaN</tt> values in <tt>Z</tt>. Requires Statistics toolbox.</li><li><tt>'max'</tt></li><li><tt>'nanmax'</tt> ignores <tt>NaN</tt> values in <tt>Z</tt>. Requires Statistics toolbox.</li><li><tt>'std'</tt> standard deviation.</li><li><tt>'nanstd'</tt> ignores <tt>NaN</tt> values in <tt>Z</tt>. Requires Statistics toolbox.</li><li><tt>'var'</tt> variance.</li><li><tt>'nanvar'</tt> ignores <tt>NaN</tt> values in <tt>Z</tt>. Requires Statistics toolbox.</li><li><tt>'mode'</tt></li><li><tt>'sum'</tt></li><li><tt>'nansum'</tt>. Requires Statistics Toolbox or NaN Suite.</li></ul></div><p><tt>[Z_downsamp,t_downsamp] = downsample_ts(...)</tt> also returns a time array corresponding to <tt>Z_downsamp</tt>. If <tt>Z</tt> is 3D or, <tt>t_downsamp</tt> corresponds to the third dimension of <tt>Z_downsamp</tt>. Each value in <tt>t_downsamp</tt> represents the mean time of all data contributing to that slice of <tt>Z_downsamp</tt>.</p><h2>Example 1: A 1D time series<a name="3"></a></h2><p>First load the sample data included in this File Exchange submission:</p><pre class="codeinput">load <span class="string">downsample_ts_exampledata</span>
+whos
+</pre><pre class="codeoutput">  Name          Size                  Bytes  Class     Attributes
+
+  lat          15x41                   4920  double              
+  lon          15x41                   4920  double              
+  t_daily       1x945                  7560  double              
+  u            15x41x945            4649400  double              
+
+</pre><p>We see in our workspace that we've just loaded a 3D variable called <tt>u</tt>, which could represent temperature data, precipitation, wind speed, or what-have-you.  For this example let's say <tt>u</tt> is a gridded wind speed data set whose dimensions correspond to latitude, longitude, and time, respectively. The <tt>t_daily</tt> array indicates that each slice along dimension 3 of <tt>u</tt> corresponds to a daily wind field on the grid given by <tt>lat</tt> and <tt>lon</tt>.</p><p>For starters, let's look at a single point on the globe, at the intersection of the equator and the prime meridian. (We'll call it <i>Earth's Origin</i>.) In our data set, (0&deg;N,0&deg;E) corresponds to row 2, column 21.</p><pre class="codeinput">uo = squeeze(u(2,21,:));
+</pre><p>We can plot the daily time series of wind at Earth's Origin like this:</p><pre class="codeinput">plot(t_daily,uo,<span class="string">'b-'</span>)
+xlabel(<span class="string">'time'</span>)
+ylabel(<span class="string">'wind speed or something'</span>)
+box <span class="string">off</span>
+datetick
+axis <span class="string">tight</span>; hold <span class="string">on</span>
+legend(<span class="string">'daily data'</span>,<span class="string">'location'</span>,<span class="string">'southwest'</span>)
+</pre><img vspace="5" hspace="5" src="downsample_ts_documentation_01.png" alt=""> <p>The daily time series of wind at Earth's Origin is a bit noisy. Let's turn the daily time series into monthly means and plot the monthly means in red.  If no downsampling period is specified in <tt>downsample_ts</tt>, <tt>'monthly'</tt> is assumed.</p><pre class="codeinput">[uo_monthlymean,t_monthly] = downsample_ts(uo,t_daily);
+
+plot(t_monthly,uo_monthlymean,<span class="string">'rs-'</span>,<span class="string">'linewidth'</span>,2)
+legend(<span class="string">'daily data'</span>,<span class="string">'monthly means'</span>,<span class="string">'location'</span>,<span class="string">'southwest'</span>)
+</pre><img vspace="5" hspace="5" src="downsample_ts_documentation_02.png" alt=""> <p>To calculate the <i>monthly</i> standard deviation, (monthly as opposed to the standard devition of the whole time series given by <tt>std(uo)</tt>) specify <tt>'std'</tt> as the function to perform on <tt>uo</tt>:</p><pre class="codeinput">uo_monthly_std = downsample_ts(uo,t_daily,<span class="string">'std'</span>);
+
+plot(t_monthly,uo_monthlymean + uo_monthly_std,<span class="string">'r'</span>)
+plot(t_monthly,uo_monthlymean - uo_monthly_std,<span class="string">'r'</span>)
+legend(<span class="string">'daily data'</span>,<span class="string">'monthly means'</span>,<span class="keyword">...</span>
+    <span class="string">'monthly means +/- 1 monthly \sigma'</span>,<span class="keyword">...</span>
+    <span class="string">'location'</span>,<span class="string">'southwest'</span>)
+</pre><img vspace="5" hspace="5" src="downsample_ts_documentation_03.png" alt=""> <pre class="codeinput">close <span class="string">all</span>; clear <span class="string">uo_monthly_std</span> <span class="string">uo_monthlymean</span> <span class="string">t_monthly</span> <span class="string">uo</span>
+</pre><h2>Example 2: A big 3D data set.<a name="9"></a></h2><p>We often want to do more than look at time series at a single point on the Earth. If you have some data (perhaps <a href="http://www.ecmwf.int/en/forecasts/datasets">wind data</a> loaded from a NetCDF file), you might want to turn a giant 3D data set into a downsampled 3D data set.  To get annual median values of the 3D <tt>u</tt> variable we loaded above, simply type</p><pre class="codeinput">[u_yr_med,t_yr] = downsample_ts(u,t_daily,<span class="string">'year'</span>,<span class="string">'median'</span>);
+</pre><p>The time array <tt>t_yr</tt> is composed of date numbers corresponding to the data about which contributing data are centered. Let's take a look:</p><pre class="codeinput">datestr(t_yr)
+</pre><pre class="codeoutput">ans =
+01-Jul-2000 12:00:00
+02-Jul-2001 00:00:00
+17-Apr-2002 12:00:00
+</pre><p>Note that the data set does not cover the entire year 2002, so data for that year are centered about April 17.</p><p>If you'd like an array of only the years corresponding to these data, use the <tt>datevec</tt> function</p><pre class="codeinput">[years,~,~] = datevec(t_yr)
+</pre><pre class="codeoutput">years =
+        2000        2001        2002
+</pre><p>If you'd like to animate the median fields we computed above, you can do so like this:</p><pre class="codeinput"><span class="keyword">for</span> loops = 1:5 <span class="comment">% loop it 5 times</span>
+    <span class="keyword">for</span> k = 1:3 <span class="comment">% because we have 3 annual median fields</span>
+        h = pcolor(lon,lat,squeeze(u_yr_med(:,:,k)));
+        shading <span class="string">interp</span>
+        caxis([-7 3])
+        xlabel(<span class="string">'longitude'</span>)
+        ylabel(<span class="string">'latitude'</span>)
+        title([<span class="string">'Median zonal wind speed for the year '</span>,num2str(years(k))])
+        pause(.5)
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+</pre><img vspace="5" hspace="5" src="downsample_ts_documentation_04.png" alt=""> <h2>Author Info<a name="13"></a></h2><p>This function was written by <a href="http://www.chadagreene.com">Chad A. Greene</a> of the University of Texas Institute for Geophysics (<a href="http://www.ig.utexas.edu/people/students/cgreene/">UTIG</a>), fall 2014.  Updated December 30, 2014 to include <tt>sum</tt> and <tt>nansum</tt> capability.</p><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2012b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% |downsample_ts| documentation
+% This function downsamples 1D or 3D data to monthly, yearly, hourly,
+% minutely, or secondly data. This function was originally designed to
+% create monthly mean time series from daily geospatial climate data. 
+% 
+%% Syntax 
+% 
+%  Z_downsamp = downsample_ts(Z,t)
+%  Z_downsamp = downsample_ts(...,'DownsamplingPeriod')
+%  Z_downsamp = downsample_ts(...,'function')
+%  [Z_downsamp,t_downsamp] = downsample_ts(...)
+% 
+%% Description 
+% 
+% |Z_downsamp = downsample_ts(Z,t)| downsamples |Z|, which must be 
+% provided with a corresponding time vector |t|.  |Z| can be 1D if its
+% length matches the length of |t|.  If |Z| is three-dimensional, the 
+% length of its third dimension must match the length of |t|. For geospatial 
+% climate data arrays, dimensions of |Z| might correspond to lat x lon x time or 
+% lon x lat x time.  
+%
+% |Z_downsamp = downsample_ts(...,'DownsamplingPeriod')| specifies a
+% downsampling period as 
+% 
+% * |'year'| 
+% * |'month'| (default)  
+% * |'day'| 
+% * |'hour'| 
+% * |'minute'| 
+% * |'second'| 
+% 
+% |Z_downsamp = downsample_ts(...,'function')| specifies a function to
+% perform on the data. By default, monthly averages are taken, but you may
+% wish to return the monthly median or monthly standard deviation or any of
+% the functions listed below.
+% 
+% A note on functions which ignore NaNs: To get the monthly means of data
+% while ignoring |NaN| values, you can use the |'nanmean'| option. The
+% |nanmean| function is part of the Statistics Toolbox, but may also be
+% found as part of the <http://www.mathworks.com/matlabcentral/fileexchange/6837 
+% NaN Suite on File Exchange>. However, the File Exchange versions mix up the order
+% of dimensions and flags for |nanstd|, |nanvar|, |nanmin|, and |nanmax|, so you will 
+% need the Statistics Toolbox for those particular functions.  In all, the
+% following functions are available: 
+% 
+% * |'mean'| (default) 
+% * |'nanmean'| ignores |NaN| values in |Z|. Requires Statistics toolbox or NaN Suite. 
+% * |'median'| 
+% * |'nanmedian'| ignores |NaN| values in |Z|. Requires Statistics toolbox or NaN Suite. 
+% * |'min'| 
+% * |'nanmin'| ignores |NaN| values in |Z|. Requires Statistics toolbox. 
+% * |'max'| 
+% * |'nanmax'| ignores |NaN| values in |Z|. Requires Statistics toolbox. 
+% * |'std'| standard deviation. 
+% * |'nanstd'| ignores |NaN| values in |Z|. Requires Statistics toolbox. 
+% * |'var'| variance. 
+% * |'nanvar'| ignores |NaN| values in |Z|. Requires Statistics toolbox. 
+% * |'mode'| 
+% * |'sum'|
+% * |'nansum'|. Requires Statistics Toolbox or NaN Suite. 
+%
+% |[Z_downsamp,t_downsamp] = downsample_ts(...)| also returns a time array
+% corresponding to |Z_downsamp|. If |Z| is 3D or, |t_downsamp| corresponds
+% to the third dimension of |Z_downsamp|. Each value in |t_downsamp|
+% represents the mean time of all data contributing to that slice of
+% |Z_downsamp|.  
+%
+%% Example 1: A 1D time series
+% First load the sample data included in this File Exchange submission: 
+
+load downsample_ts_exampledata 
+whos 
+
+%%
+% We see in our workspace that we've just loaded a 3D variable called |u|,
+% which could represent temperature data, precipitation, wind speed, or
+% what-have-you.  For this example let's say |u| is a gridded wind speed data set
+% whose dimensions correspond to latitude, longitude, and time,
+% respectively. The |t_daily| array indicates that each slice along
+% dimension 3 of |u| corresponds to a daily wind field on the grid given by
+% |lat| and |lon|.  
+% 
+% For starters, let's look at a single point on the globe, at the
+% intersection of the equator and the prime meridian. (We'll call it _Earth's Origin_.)
+% In our data set, (0°N,0°E) corresponds to row 2, column 21. 
+
+uo = squeeze(u(2,21,:)); 
+
+%% 
+% We can plot the daily time series of wind at Earth's Origin like this: 
+
+plot(t_daily,uo,'b-')
+xlabel('time') 
+ylabel('wind speed or something') 
+box off
+datetick 
+axis tight; hold on
+legend('daily data','location','southwest')
+
+%% 
+% The daily time series of wind at Earth's Origin is a bit noisy. Let's turn the daily
+% time series into monthly means and plot the monthly means in red.  If no
+% downsampling period is specified in |downsample_ts|, |'monthly'| is assumed.  
+
+[uo_monthlymean,t_monthly] = downsample_ts(uo,t_daily);
+
+plot(t_monthly,uo_monthlymean,'rs-','linewidth',2)
+legend('daily data','monthly means','location','southwest')
+
+%% 
+% To calculate the _monthly_ standard deviation, (monthly as opposed to the standard
+% devition of the whole time series given by |std(uo)|)
+% specify |'std'| as the function to perform on |uo|: 
+
+uo_monthly_std = downsample_ts(uo,t_daily,'std'); 
+
+plot(t_monthly,uo_monthlymean + uo_monthly_std,'r')
+plot(t_monthly,uo_monthlymean - uo_monthly_std,'r')
+legend('daily data','monthly means',...
+    'monthly means +/- 1 monthly \sigma',...
+    'location','southwest')
+
+%% 
+close all; clear uo_monthly_std uo_monthlymean t_monthly uo
+
+%% Example 2: A big 3D data set. 
+% We often want to do more than look at time series at a single point on
+% the Earth. If you have some data (perhaps <http://www.ecmwf.int/en/forecasts/datasets
+% wind data> loaded from a NetCDF file), you might want to turn a giant 3D
+% data set into a downsampled 3D data set.  To get annual median values of
+% the 3D |u| variable we loaded above, simply type 
+
+[u_yr_med,t_yr] = downsample_ts(u,t_daily,'year','median');
+
+%% 
+% The time array |t_yr| is composed of date numbers
+% corresponding to the data about which contributing data are centered.
+% Let's take a look: 
+
+datestr(t_yr) 
+
+%% 
+% Note that the data set does not cover the entire year 2002, so data for
+% that year are centered about April 17.  
+% 
+% If you'd like an array of only the years corresponding to these data, use
+% the |datevec| function 
+
+[years,~,~] = datevec(t_yr)
+
+%% 
+% If you'd like to animate the median fields we computed above, you can do
+% so like this: 
+
+for loops = 1:5 % loop it 5 times
+    for k = 1:3 % because we have 3 annual median fields
+        h = pcolor(lon,lat,squeeze(u_yr_med(:,:,k))); 
+        shading interp
+        caxis([-7 3])
+        xlabel('longitude') 
+        ylabel('latitude') 
+        title(['Median zonal wind speed for the year ',num2str(years(k))])
+        pause(.5)
+    end
+end
+
+%% Author Info
+% This function was written by <http://www.chadagreene.com Chad A. Greene> of the 
+% University of Texas Institute for Geophysics
+% (<http://www.ig.utexas.edu/people/students/cgreene/ UTIG>),
+% fall 2014.  Updated December 30, 2014 to include |sum| and |nansum|
+% capability. 
+    
+##### SOURCE END #####
+--></body></html>

@@ -32,7 +32,7 @@ else, the_date_num = datenum(YEAR,MONTH,15);
 end
 
 % find and return nearest date
-[~, month_num] = min(abs(thedates-the_date_num));
+[~, month_num] = min(abs(thedates-the_date_num(1)));
 exact_date_num = thedates(month_num);
 end
 

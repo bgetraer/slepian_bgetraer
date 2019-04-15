@@ -35,7 +35,7 @@ end
 
 % Do the fitting by minimizing least squares. Unweighted, or weighted by
 % the estimated errors
-m = (G'*G)\G'*y ;   % the model parameters
+m = (G'*G)\G'*y;   % the model parameters
 f = G*m;            % the modeled signal
 
 % return variance reduction
