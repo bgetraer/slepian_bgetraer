@@ -123,11 +123,15 @@ ST = load(fullfile(matDir,'TS2003-2017'),'data','t','spacelim');
 ST.data = squeeze(ST.data);
 QV2M = load(fullfile(matDir,'QV2M2003-2017'),'data','t','spacelim');
 QV2M.data = squeeze(QV2M.data);
+CLDTOT = load(fullfile(matDir,'CLDTOT2003-2017'),'data','t','spacelim');
+CLDTOT.data = squeeze(CLDTOT.data);
+SWGNT = load(fullfile(matDir,'SWGNT2003-2017'),'data','t','spacelim');
+SWGNT.data = squeeze(SWGNT.data);
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % BEGIN PLOTTING:
-%   1) comparison of entire GRACE time period
-%   2)
+%   1) GRACE mass trends
+%   2) comparison of entire GRACE time period
 %
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -139,10 +143,75 @@ imPlot(sum(ST.data,3),[])
 subplot(1,2,2)
 imPlot(sum(meltData.allmeltMap,3),[])
 
+%% GRACE mass trends
+% dmass = massData.D - massData.D(:,:,1);
+% massanom = anomMonth(massData.D,massData.thedates);
+
+% m1slope0317 = linearMap(massanom(resamp,resamp,:),massData.thedates);
+% m1slope0312 = linearMap(massanom(resamp,resamp,1:monthnum(1,2013,massData.thedates)),...
+%     massData.thedates(1:monthnum(1,2013,massData.thedates)));
+% m1slope1217 = linearMap(massanom(resamp,resamp,monthnum(1,2013,massData.thedates):end),...
+%     massData.thedates(monthnum(1,2013,massData.thedates):end));
+% m1slope1317 = linearMap(massanom(resamp,resamp,monthnum(9,2013,massData.thedates):end),...
+%     massData.thedates(monthnum(9,2013,massData.thedates):end));
+
+% m2slope0312 = linearMap(massanom(resamp,resamp,1:monthnum(1,2013,massData.thedates)),...
+%     massData.thedates(1:monthnum(1,2013,massData.thedates)),2);
+% m2slope1217 = linearMap(massanom(resamp,resamp,monthnum(1,2013,massData.thedates):end),...
+%     massData.thedates(monthnum(1,2013,massData.thedates):end),2);
+% m2slope1317 = linearMap(massanom(resamp,resamp,monthnum(9,2013,massData.thedates):end),...
+%     massData.thedates(monthnum(9,2013,massData.thedates):end),2);
+% m2slope0317 = linearMap(massanom(resamp,resamp,:),...
+%     massData.thedates,2);
+
+%% GRACE mass trend VS T2M trend 2003--2017
+figure(1)
+clf
+
+ax1 = subplot(1,4,1:2);
+load(fullfile(matDir,'tslopes'),'TslopesGRACESummer10');
+imj = TslopesGRACESummer10;
+thisimj = interp2(pM.X,pM.Y,imj'.*365.*10,GRACEX,GRACEY);
+
+fill(pG.gx./resamprate+0.5,pG.gy./resamprate+0.5,[0.6 0.6 0.6],'EdgeColor','none')
+hold on
+plot(pG.bx./resamprate+0.5,pG.by./resamprate+0.5,':k','linewidth',0.2)
+plot(pG.gx./resamprate+0.5,pG.gy./resamprate+0.5,'-k','linewidth',0.2)
+set(gca,'ydir','reverse')
+
+imagesc(thisimj,'AlphaData',~isnan(thisimj));
+
+axis square off
+colormap(ax1,jet(20))
+caxis([prctile(thisimj(:),1), prctile(thisimj(:),99)])
+cb = colorbar;
+
+cb.Ticks = [-2:.2:2];
+ylabel(cb,'\circC per decade')
+
+title('Summer T2M trend, 2003-2012')
+
+subplot(1,4,3:4)
+
+imj = (m2slope0312)*365^2;
+
+imagesc(imj,'AlphaData',~isnan(imj));
+axis square off
+hold on
+plot(ice.GRACE.X/2+0.5,ice.GRACE.Y/2+0.5,'k','linewidth',1.5)
+plot(pG.bx/2+0.5,pG.by/2+0.5,':k','linewidth',0.5)
+plot(pG.gx/2+0.5,pG.gy/2+0.5,'k','linewidth',0.5)
+cmap = flip(jet(100));
+colormap(cmap(1:70,:,:))
+cb = colorbar;
+ylabel(cb,'mm/yr^2 w.e.')
+title('mass anomaly acceleration, 2003-2012')
+
 %% SHOW MEAN CLIMATE VARIABLES VS MASS LOSS OVER GRACE
 t2m = imgaussfilt(T2M.data,1);
 st = imgaussfilt(ST.data,1);
 qv2m = imgaussfilt(QV2M.data,1);
+swgnt = imgaussfilt(SWGNT.data,1);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %   DIVIDE BY SEASON
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -155,6 +224,8 @@ season(month(alldates)>=9 & month(alldates)<=11) = 4;
 t2m = t2m(:,:,season==3);
 st = st(:,:,season==3);
 qv2m = qv2m(:,:,season==3);
+swgnt = swgnt(:,:,season==3);
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Get total maps for GRACE and MERRA (filtered)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -162,6 +233,7 @@ qv2m = qv2m(:,:,season==3);
 meant2m = mean(t2m,3);
 meanst = mean(st,3);
 meanqv2m = mean(qv2m,3);
+meanswgnt = mean(swgnt,3);
 
 % totalmelt = imgaussfilt(sum(T2M.data>freezing,3),1);
 % totalmelt = imgaussfilt(sum(meltData.allmeltMap,3),1);
@@ -182,19 +254,21 @@ stmelt = stmelt.*indexGL;
 qv2mmelt = (interp2(pM.X,pM.Y,meanqv2m',GRACEX,GRACEY));
 qv2mmelt = qv2mmelt.*indexGL;
 
+swgntmelt = (interp2(pM.X,pM.Y,meanswgnt',GRACEX,GRACEY));
+swgntmelt = swgntmelt.*indexGL;
 %% COMPARE TOTAL TEMP AND MASS FOR ALL OF GREENLAND
 
 figure(2)
 clf
-suptitle('Mass loss to T2M comparison, 2003-2017')
 region = {[1 4],[2 3]};
 c = {'k','r'};
 yl = [];
 
 for j = 1:2
     if j == 1
-        ax = subplot(2,1,1);
+        ax = subplot(1,8,1:4);
         hold on;grid on
+        title('Mass Loss to Mean Summer (JJA) T2M Comparison, 2003-2017')
         thisindex = indexICEnan;
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % TOTAL MASS LOSS v MEAN T2M
@@ -217,8 +291,16 @@ for j = 1:2
         end
         xx2 = x(~isnan(y));
         yy2 = y(~isnan(y));
-        [mT2M,f] = linear_m(xx2,yy2);
-        hfitT2M = plot(xx2,f,'color',[0.9 0 0],'linewidth',1);
+        [mT2M,f] = linear_m(xx2(xx2>2500),yy2(xx2>2500));
+        hfitT2M = plot(xx2(xx2>2500),f,'color',[0.9 0 0],'linewidth',1);
+        
+        yy2 = yy2(xx2<750);
+        xx2 = xx2(xx2<750);
+        
+        [mT2M2,f] = linear_m(xx2,yy2,2);
+%         reg
+%         m(3)
+        plot(xx2,f)
         
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % TOTAL MASS LOSS v MEAN ST
@@ -241,14 +323,24 @@ for j = 1:2
         end
         xx2 = x(~isnan(y));
         yy2 = y(~isnan(y));
-        [mST,f] = linear_m(xx2,yy2);
-        hfitST = plot(xx2,f,'color',[0 0 0.6],'linewidth',1);
         
-        ylim([240 280]);
+        [mST,f] = linear_m(xx2(xx2>2500),yy2(xx2>2500));
+        hfitST = plot(xx2(xx2>2500),f,'color',[0 0 0.6],'linewidth',1);
+        
+        
+        yy2 = yy2(xx2<750);
+        xx2 = xx2(xx2<750);
+        
+        [mST2,f] = linear_m(xx2,yy2,2);
+%         reg
+%         m(3)
+        plot(xx2,f,'color',[0 0 0.6])
+        
+        ylim([247 276]);
         xlim(minmax(binedge))
 
-                ylabel('\circK')
-
+        ylabel('\circC')
+        
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % TOTAL MASS LOSS v MEAN QV2M
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -265,65 +357,97 @@ for j = 1:2
             y2(i) = nanmean(y(x>binedge(i) & x<binedge(i+1)));
             std2 = nanstd(y(x>binedge(i) & x<binedge(i+1)));
             x2(i) = binedge(i)+1/2*(binedge(i+1)-binedge(i));
-            hebQV2M = errorbar(x2(i),y2(i),std2,'o',...
+            hebQV2M = errorbar(x2(i),y2(i),std2,'^',...
                 'color',[0.9290 0.6940 0.1250],'linewidth',1,...
                 'markerfacecolor',[0.9290 0.6940 0.1250]);
         end
         xx2 = x(~isnan(y));
         yy2 = y(~isnan(y));
-        [mQV2M,f] = linear_m(xx2,yy2);
-        hfitQV2M = plot(xx2,f,'color',[0.9290 0.6940 0.1250],'linewidth',1);
-        ylabel('kg/kg')
+        [mQV2M,f] = linear_m(xx2(xx2>2500),yy2(xx2>2500));
+        hfitQV2M = plot(xx2(xx2>2500),f,'color',[0.9290 0.6940 0.1250],'linewidth',1);
+        ylabel('10^{-3} kg/kg')
         
-        set(gca,'ylim',[-0.4 2.3]*1E-3)
-                
-        yl = [yl get(gca,'ylim')];
+        
+        
+        yy2 = yy2(xx2<750);
+        xx2 = xx2(xx2<750);
+        
+        [mQV2M2,f] = linear_m(xx2,yy2,2);
+%         reg
+%         m(3)
+        plot(xx2,f,'color',[0.9290 0.6940 0.1250])
+        
+        yticks
+        set(gca,'ylim',[1.5 5]*1E-3)
+        set(gca,'yticklabels',yticks.*1000)    
+%         yl = [yl get(gca,'ylim')];
         
         colormap(ax,jet(100))
-        xlabel('Kg per m^2 of mass loss')
+        xlabel('kg per m^2 or mm w.e. of mass loss')
         
-        lgd = legend([hebT2M, hfitT2M,hebST, hfitST, hebQV2M, hfitQV2M],'mean T2M',...
-            sprintf('Type 1 LSR (m = %0.2f\\circK/(1E3Kg/m^2); b = %0.2f)',mT2M(2)*1E3,mT2M(1)),...
-            'mean ST',...
-            sprintf('Type 1 LSR (m = %0.2f\\circK/(1E3Kg/m^2); b = %0.2f)',mST(2)*1E3,mST(1)),...
-            'mean QV2M',...
-            sprintf('Type 1 LSR (m = %0.e kg/kg/(1E3Kg/m^2); b = %0.2e)',mQV2M(2)*1E3,mQV2M(1)));
-
-        lgd.Location = 'eastoutside';
-                title(lgd,'Binned by mass loss (\DeltaM = 250 Kg/m^2; \bullet = \mu \pm\sigma)')
+        lgdText1 = ...
+            [sprintf('Type 1 LSR (m = %0.2f\\circC/m^2 w.e. per yr; b = %0.2f)',mT2M2(3)*(1E3)^2./14,mT2M2(1)),...
+            char(10) ...
+            sprintf('Type 1 LSR (m = %0.2f\\circC/m w.e. per yr)',mT2M(2)*1E3./14),...
+            ];
+        
+        lgdText2 = ...
+            [sprintf('Type 1 LSR (m = %0.2f\\circC/m^2 w.e. per yr; b = %0.2f)',mST2(3)*(1E3)^2./14,mST2(1)),...
+            char(10) ...
+            sprintf('Type 1 LSR (m = %0.2f\\circC/m w.e. per yr)',mST(2)*1E3./14),...
+            ];
+        
+        lgdText3 = ...
+            [sprintf('Type 1 LSR (m = %0.2e kg/kg/m^2 w.e. per yr; b = %0.2e)',mQV2M2(3)*(1E3)^2./14,mQV2M2(1)),...
+            char(10) ...
+            sprintf('Type 1 LSR (m = %0.2e kg/kg/m w.e. per yr)',mQV2M(2)*1E3./14),...
+            ];
+        
+        lgd = legend([hebT2M, hfitT2M,hebST, hfitST, hebQV2M, hfitQV2M],...
+            'mean Summer (JJA) T2M [\circC]',...
+            lgdText1,...
+            'mean Summer (JJA) ST [\circC]',...
+            lgdText2,...
+            'mean Summer (JJA) QV2M [kg/kg]',...
+            lgdText3);
+        lgd.Location = 'southoutside';
+                title(lgd,'Binned by mass loss (\DeltaM = 250 kg/m^2; \bullet = \mu \pm\sigma)')
     end
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % IMAGES OF DATA
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    ax = subplot(2,2,j+2);
+    ax = subplot(2,2,j*2);
     hold on
     if j == 1
         C = mass.*indexICEnan;
         caxis([-4000 2000]);
         cmap = colormap(ax,bluewhitered(100,1));
+        ttltext = '\DeltaMass 2003-2017';
     else
         C = stmelt.*indexICEnan;
+         ttltext = 'Mean Summer(JJA) ST 2003-2017';
     end
     Z = ones(size(C));
     surf(ptsGL.xp(resamp,resamp).*indexICEnan,ptsGL.yp(resamp,resamp).*indexICEnan,Z,C,...
         'edgecolor','none');
     cb = colorbar;
-    
-    if j==1;ylabel(cb,'Kg per m^2 of mass loss');end
-    if j==2;ylabel(cb,'mean T2M\circK');end
+    cb.Position = cb.Position+1E-10;
+    if j==1;ylabel(cb,'kg per m^2 of mass loss');end
+    if j==2;ylabel(cb,'\circC');end
     
     
     plotGLbackground( pG,ice,cmap,summit );
     axis image off
     set(gca,'ydir','reverse')
+    title(ttltext)
 end
 % ax = subplot(2,2,1:2);
 
 %% COMPARE TOTAL TEMP AND MASS FOR DIFFERENT REGIONS OF GREENLAND
 
-figure(2)
+figure(3)
 clf
-suptitle('Mass loss to T2M comparison, 2003-2017')
+suptitle('Mass Loss to Mean Summer (JJA) T2M Comparison, 2003-2017')
 region = {[1 4],[2 3]};
 c = {'k','r'};
 yl = [];
@@ -336,10 +460,11 @@ for j = 1:2
     hold on;grid on
     for reg = region{j}
         thisindex = subREG.GRACE.index{reg}.*indexICE;
+        thisindex(~thisindex)=nan;
         y = t2mmelt(:).*thisindex(:);
         x = -mass(:).*thisindex(:);
-        %         h =  scatter(x,y,20,...
-        %             distweight(:).*thisindex(:),'x','MarkerEdgeAlpha',0.2);
+%         h =  scatter(x,y,20,...
+%             distweight(:).*thisindex(:),'x','MarkerEdgeAlpha',0.2);
         % MAKE BINS
         %         binedge = 10.^(-2:0.5:3);
         binedge = -1000:250:5000;
@@ -354,23 +479,25 @@ for j = 1:2
                 'color',c{find(reg==region{j})},'linewidth',1,...
                 'markerfacecolor',c{find(reg==region{j})})
         end
-        if reg==2
-            yy2 = yy2(~isnan(yy2));
-            xx2 = x2(~isnan(yy2));
-            yy2 = yy2(xx2<1000);
-            xx2 = xx2(xx2<1000);
-            
-            [m,f] = linear_m(xx2,yy2);
-            plot(xx2,f)
-        end
-        axis tight
+        
+%         yy2 = yy2(~isnan(yy2));
+%         xx2 = x2(~isnan(yy2));
+%         if any(reg==[2 3])
+%             yy2 = yy2(xx2<1000);
+%             xx2 = xx2(xx2<1000);
+%         elseif any(reg==[1 4])
+%             yy2 = yy2(xx2<750);
+%             xx2 = xx2(xx2<750);
+%         end
+%         [m,f] = linear_m(xx2,yy2,2);
+%         plot(xx2,f)
         
         yl = [yl get(gca,'ylim')];
     end
-    
+%     axis tight
     colormap(ax,jet(100))
     ylabel('mean T2M\circK')
-    xlabel('Kg per m^2 of mass loss')
+    xlabel('kg per m^2 of mass loss')
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % EAST AND WEST REGIONS AND DISTANCE COLORING
@@ -391,7 +518,7 @@ for j = 1:2
         'edgecolor','none');
     cb = colorbar;
     
-    if j==1;ylabel(cb,'Kg per m^2 of mass loss');end
+    if j==1;ylabel(cb,'kg per m^2 of mass loss');end
     if j==2;ylabel(cb,'mean T2M\circK');end
     
     
@@ -400,10 +527,10 @@ for j = 1:2
     set(gca,'ydir','reverse')
     plotGLforeground(subREG, region{j},[],{'k','k','r','r'});
 end
-ax = subplot(2,2,1);
-ylim([240 275]);
-ax = subplot(2,2,2);
-ylim([240 275]);
+% ax = subplot(2,2,1);
+% ylim([240 275]);
+% ax = subplot(2,2,2);
+% ylim([240 275]);
 
 %%
 yr = 2012;
@@ -414,8 +541,14 @@ GRACEdiff = massData.D(:,:,monthnum(10,yr,massData.thedates)) - ...
     massData.D(:,:,monthnum(6,yr,massData.thedates));
 suptitle(sprintf('Mass loss to melt day comparison, JUN-SEPT %s',num2str(yr)))
 
+%%
+
+
+
+
+
 %% ANOMALY
-[ massAnom, massAVG ] = anomMonth(massData.D, massData.thedates,'GRACE');
+[ massAnom, massAVG ] = anomMonth(massData.D, massData.thedates);
 figure(7)
 
 clf
@@ -500,6 +633,39 @@ subplot(1,2,2)
 % plot(a(~isnan(b)),smooth(b(~isnan(b)),20))
 % axis tight square
 legend('nw','ne','se','sw','distance from edge (filt)','location','southoutside')
+
+%% FIND TOTAL MASS BALANCE FOR EACH YEAR (ACC and LOSS)
+% Get 'thedates','ESTtotal','ESTtotalresid','total','alphavarall' from GREENLAND60.m
+% Gdata = load(fullfile(datadir,'Greenland60data'));
+
+
+figure(7)
+clf
+hold on
+plot(Gdata.thedates,Gdata.total)
+plot(Gdata.thedates,Gdata.ESTtotal)
+
+[ymax,x]=downsample_ts(Gdata.total,Gdata.thedates,'yearly','function','max');
+[ymin,x]=downsample_ts(Gdata.total,Gdata.thedates,'yearly','function','min');
+plot(x,ymax,'*')
+plot(x,ymin,'*')
+
+loss = ymax(1:end-1) - ymin(1:end-1);
+acc = ymax(2:end) - ymin(1:end-1);
+
+bar(x(2:end),acc)
+bar(x(1:end-1),-loss,'r')
+
+datetick
+
+[lossS, lossI] =sort(loss,'descend');
+lossY = year(x(lossI));
+
+lossY'
+grid on
+
+
+
 
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -594,7 +760,7 @@ for j = 1:2
     %         xticks)
     colormap(ax,jet(100))
     xlabel('# days T2M>0\circC, gaussian filter 1\sigma')
-    ylabel('Kg per m^2 of mass loss')
+    ylabel('kg per m^2 of mass loss')
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % EAST AND WEST REGIONS AND DISTANCE COLORING

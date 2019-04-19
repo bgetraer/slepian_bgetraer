@@ -1,3 +1,5 @@
+load(fullfile(datadir,'Greenland60data'))
+
 figure(1)
 
 clf
@@ -9,6 +11,8 @@ for i = 1:14
 end
 
 meandiff = sum(seasonaldiff,1)/14;
+
+
 
 grabanalpha(G(:,1:20)*meandiff',[],60,1,2)
 cmap = 'bluewhitered(20,1)';

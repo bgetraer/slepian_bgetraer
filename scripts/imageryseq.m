@@ -48,7 +48,7 @@ thedates = thedates(validrange);
 %% Evaluate the signals on the grid
 %   this is time consuming... plm2xyz takes a while
 %   data is saved as datafile im_seqSH.mat
-D = plm2grid(sdcoffs,thedates,latd,lond);
+D = plm2grid(sdcoffs,thedates,latd,lond,'im_seqSH');
 %% Plot the sequence as a movie
 % Load an existing file, or the one you just made
 load(fullfile(datadir,'im_seqSH'))

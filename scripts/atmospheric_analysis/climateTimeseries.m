@@ -199,13 +199,54 @@ seas = {'Winter (DJF)','Spring (MAM)','Summer (JJA)','Fall (SON)'};
 for i = 1:4
     subplot(4,1,i)
     hold on
-    [y,x]=downsample_ts(tdatama(season==i),allMdates(season==i),'yearly');
+    
+    % deal with Dec Jan Feb year overlaps
+    if i == 1
+        x1 = allMdates(season==i);
+        y1 = tdatama(season==i);
+        
+        for j = 1:length(x1)
+            if month(x1(j))==12
+                x1(j) = datenum(year(x1(j))+1,month(x1(j)),15);
+            end
+        end
+        
+        [x1,si] = sort(x1);
+        y1 = y1(si);
+        
+        [y,x]=downsample_ts(y1,x1,'yearly');
+        [stdy]=downsample_ts(y1,x1,'yearly','function','std');
+        
+        for j = 1:length(x)
+                x(j) = datenum(year(x(j)),1,15);
+        end
+        
+        x = x(1:end-1);
+        y = y(1:end-1);
+        stdy = stdy(1:end-1);
+    else
+        [y,x]=downsample_ts(tdatama(season==i),allMdates(season==i),'yearly');
+        [stdy]=downsample_ts(tdatama(season==i),allMdates(season==i),'yearly','function','std');
+    end
+    
     hT10 = plot(x,y,'-o','color',color(i,:),'markeredgecolor','none',...
         'markerfacecolor',color(i,:),'linewidth',2);
     
-%     xx = allMdates(season==i);
-%     yy = tdatama(season==i);
-%     
+    xx = allMdates(season==i);
+    yy = tdatama(season==i);
+    
+%     plot(xx,yy,'x')
+    
+    [yS, iS] = sort(y,'descend');
+
+    % # of years in top ten since 2003
+%     sum(year(x(iS(1:10)))>=2003)
+    
+    year(x(iS(6:10)))
+    yS(6:10)'
+    stdy(iS(6:10))
+
+
 %     mu = mean(yy);
 %     sigma = std(yy);
 %     n = length(yy);
@@ -218,7 +259,7 @@ for i = 1:4
 %         mTests(j) = mTest(2);
 %     end
 %     
-%     [mT,fT] = linear_m(xx,yy);
+    [mT,fT] = linear_m(xx,yy);
 %     
 %     yyy = yy - fT;
 %     
@@ -241,55 +282,15 @@ for i = 1:4
 %     coni95(i) = prctile(abs(ciTests),95);
 %     coni90(i) = prctile(abs(ciTests),90);
     
-    rT = corrcoef(allMdates(season==i),tdatama(season==i));
+    rT = corrcoef(x,y);
     totslope = refline(mT(2),mT(1));
     set(totslope,'color','k','linestyle','-','linewidth',1);
     
-    [m,f] = linear_m(x(year(x)>=2003),y(year(x)>2002));
-    rg = corrcoef(x(year(x)>=2003),y(year(x)>2002));
-    graceslope = plot(x(year(x)>=2003),f,'--k','linewidth',1);
+    [m,f] = linear_m(xx(year(xx)>=2003),yy(year(xx)>2002));
+    rg = corrcoef(xx(year(xx)>=2003),yy(year(xx)>2002));
+    graceslope = plot(xx(year(xx)>=2003),f,'--k','linewidth',1);
     
-    xx = xx(year(xx)>=2003);
-    yy = yy(year(xx)>=2003);
-    
-    mu = mean(yy);
-    sigma = std(yy);
-    n = length(yy);
-    N = 10000;
-    mTests = zeros(1,N);
-    
-    for j=1:N
-        Y = randn(n,1).*sigma + mu;
-        [mTest] = linear_m(xx,Y);
-        mTests(j) = mTest(2);
-    end
-    
-    [mT,fT] = linear_m(xx,yy);
-    
-    yyy = yy - fT;
-    
-    mu = mean(yyy);
-    sigma = std(yyy);
-    n = length(yyy);
-    N = 10000;
-    ciTests = zeros(1,N);
-    
-    for j=1:N
-        Y = randn(n,1).*sigma + mu;
-        [ciTest] = linear_m(xx,Y);
-        ciTests(j) = ciTest(2);
-    end
-    % Compute centile
-    nless = sum(abs(mTests) < abs(m(2)));
-    nequal = sum(abs(mTests) == abs(m(2)));
-    centile(i) = 100 * (nless + 0.5*nequal) / length(mTests);
-    % compute confidence interval
-    coni95(i) = prctile(abs(ciTests),95);
-    coni90(i) = prctile(abs(ciTests),90);
-    
-    
-    
-    
+   
     xlim([datenum(1980,1,1),datenum(2017,12,31)])
     datetick('keeplimits')
     grid on

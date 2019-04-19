@@ -4,7 +4,7 @@
 % Generates an illustrative figure.
 % bgetraer
 %% SETUP WORKSPACE
-setworkspace('/Users/benjamingetraer/Documents/JuniorPaper/SH_Workspace');
+setworkspace('/Users/benjamingetraer/Documents/IndependentWork/SH_Workspace');
 
 % demonstrate SH functions for a few orders
 lindex = [1,1,2];

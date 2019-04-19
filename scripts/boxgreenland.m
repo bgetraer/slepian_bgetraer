@@ -63,8 +63,24 @@ bx = Fx(buff(:,1),buff(:,2));
 by = Fy(buff(:,1),buff(:,2));
 
 %% FIGURE: GLOBAL v IMAGE BASIS:
-jp02fig5(xprime,yprime,zprime,lond,latd,gx,gy,bx,by,Fx,Fy)
+jp02fig5(xprime,yprime,zprime,lond,latd,pG.gx,pG.gy,pG.bx,pG.by,pG.Fx,pG.Fy)
+fill(pG.gx,pG.gy,'k')
+% plot(pG.bx,pG.by,'k')
+fill(pG.Fx(subregions.lonICE,subregions.latICE),...
+    pG.Fy(subregions.lonICE,subregions.latICE),'w')
+plot(subREG.GRACE.XBUF{1},subREG.GRACE.YBUF{1},':k','linewidth',0.7)
+plot(subREG.GRACE.XBUF{2},subREG.GRACE.YBUF{2},':k','linewidth',0.7)
+plot(subREG.GRACE.XBUF{3},subREG.GRACE.YBUF{3},':k','linewidth',0.7)
+plot(subREG.GRACE.XBUF{4},subREG.GRACE.YBUF{4},':k','linewidth',0.7)
 
+regionlabel = {'NW','NE','SE','SW'};
+regioncenterX = [105 140 155 120 ];
+regioncenterY = [90 80 130 145];
+
+for reg = 1:4
+            text(regioncenterX(reg),regioncenterY(reg),...
+                3,regionlabel{reg});
+end
 %% SAVE DATA TO IMPORT INTO OTHER SCRIPTS
 % The global grid points around Greenland
 filename1 = 'ptsGL.mat';

@@ -11,7 +11,7 @@ function [ anomData, avgMonth ] = anomMonth( data, time)
 %
 % Last modified: bgetraer@princeton.edu 3/5/2019
 
-
+data = squeeze(data);
 
 dimen = length(size(data));
 

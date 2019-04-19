@@ -1,4 +1,4 @@
-function [ D ] = plm2grid( coffs, thedates, lat, lon )
+function [ D ] = plm2grid( coffs, thedates, lat, lon,filename )
 %PLM2GRID Creates a 3d matrix of images (x,y,time) by evaluating the given
 %   coefficient timeseriec upon a given lat lon grid. This is fairly time
 %   and memory consuming, so the datafile is saved after every date is
@@ -9,6 +9,7 @@ function [ D ] = plm2grid( coffs, thedates, lat, lon )
 %   thedates    the corresponding dates 
 %   lat         the latitude matrix of your grid
 %   lon         the longitude matrix of your grid 
+%   filename    to be stored in 'datafiles'
 %
 % OUTPUT:
 %   D           the 3d matrix of images (x,y,time)
@@ -18,7 +19,6 @@ function [ D ] = plm2grid( coffs, thedates, lat, lon )
 
 % size and file name of the image sequence matrix
 shp = size(lon);
-filename = 'im_seqSH';
 
 % initialize the blank 3d matrix (x, y, time)
 D = zeros([shp,size(thedates,2)]);

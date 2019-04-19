@@ -1,5 +1,5 @@
-addpath('/Users/benjamingetraer/Documents/JuniorPaper/slepian_bgetraer/functions')
-setworkspace('/Users/benjamingetraer/Documents/JuniorPaper/SH_Workspace');
+addpath('/Users/benjamingetraer/Documents/IndependentWork/slepian_bgetraer/functions')
+setworkspace('/Users/benjamingetraer/Documents/IndependentWork/SH_Workspace');
 % radius
 r = 15;
 L = 20;

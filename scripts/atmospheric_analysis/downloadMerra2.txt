@@ -18,14 +18,14 @@ open https://disc.gsfc.nasa.gov/datasets?keywords=%22MERRA-2%22
 
 // 6	download links list to a new download directory 
 
-Documents/IndependentWork/slepian_bgetraer/datafiles/MERRA2/MerraGrnlandOther
+Documents/IndependentWork/slepian_bgetraer/datafiles/MERRA2/GrnlandWind
 
 // 8 	run download command on text file of links
 
 cd Documents/IndependentWork/slepian_bgetraer/datafiles/MERRA2/cookies
 
-dlDIR=Documents/IndependentWork/slepian_bgetraer/datafiles/MERRA2/MerraMonthPrecip
+dlDIR=Documents/IndependentWork/slepian_bgetraer/datafiles/MERRA2/GrnlandWind
 
-wget --user bgetraer --password hujguG-3mocgy-kixhiw --load-cookies ~/.urs_cookies --save-cookies ~/.urs_cookies --auth-no-challenge=on --keep-session-cookies --content-disposition -i ~/$dlDIR/linkMonthPrecip.txt -P ~/$dlDIR --no-check-certificate --inet4-only 
+wget --user bgetraer --password hujguG-3mocgy-kixhiw --load-cookies ~/.urs_cookies --save-cookies ~/.urs_cookies --auth-no-challenge=on --keep-session-cookies --content-disposition -i ~/$dlDIR/urls.txt -P ~/$dlDIR --no-check-certificate --inet4-only 
 
 

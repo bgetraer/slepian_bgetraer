@@ -317,29 +317,192 @@ yrs = repmat((1980:2017),12,1);
 months = repmat((1:12)',size(unique(yrs),1),1);
 day = repmat(15,size(months,1),1);
 allMdates = datenum(yrs(:),months,day);
-[ Tslopes ] = linearMap( squeeze(Temp.T2MMEAN), allMdates );
+imjset = squeeze(Temp.T2MMEAN);
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   DIVIDE BY SEASON
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+season = allMdates;
+season(month(allMdates)>=12 | month(allMdates)<=2) = 1;
+season(month(allMdates)>=3 & month(allMdates)<=5) = 2;
+season(month(allMdates)>=6 & month(allMdates)<=8) = 3;
+season(month(allMdates)>=9 & month(allMdates)<=11) = 4;
+
+% [ TslopesFull ] = linearMap( imjset, allMdates );
+% [ TslopesGRACE ] = linearMap( imjset(:,:,year(allMdates)>=2003),...
+%     allMdates(year(allMdates)>=2003));
+% [ TslopesGRACE10 ] = linearMap( imjset(:,:,year(allMdates)>=2003& year(allMdates)<=2012),...
+%     allMdates(year(allMdates)>=2003& year(allMdates)<=2012));
+[ TslopesGRACE5 ] = linearMap( imjset(:,:,year(allMdates)>=2013& year(allMdates)<=2017),...
+    allMdates(year(allMdates)>=2013& year(allMdates)<=2017));
+
+% ONLY SUMMER/WINTER
+
+% [ TslopesFullSummer ] = linearMap( imjset(:,:,season==3), allMdates(season==3) );
+% [ TslopesGRACESummer ] = linearMap( imjset(:,:,season==3 & year(allMdates)>=2003),...
+%     allMdates(season==3 & year(allMdates)>=2003));
+% [ TslopesGRACESummer10 ] = linearMap( imjset(:,:,season==3 & year(allMdates)>=2003& year(allMdates)<=2012),...
+%     allMdates(season==3 & year(allMdates)>=2003& year(allMdates)<=2012));
+% [ TslopesGRACESummer5 ] = linearMap( imjset(:,:,season==3 & year(allMdates)>=2013& year(allMdates)<=2017),...
+%     allMdates(season==3 & year(allMdates)>=2013& year(allMdates)<=2017));
+
+% [ TslopesFullWinter ] = linearMap( imjset(:,:,season==1), allMdates(season==1) );
+% [ TslopesGRACEWinter ] = linearMap( imjset(:,:,season==1 & year(allMdates)>=2003),...
+%     allMdates(season==1 & year(allMdates)>=2003));
+% [ TslopesGRACEWinter10 ] = linearMap( imjset(:,:,season==1 & year(allMdates)>=2003& year(allMdates)<=2012),...
+%     allMdates(season==1 & year(allMdates)>=2003& year(allMdates)<=2012));
+
+% [ TslopesFullnotSummer ] = linearMap( imjset(:,:,season~=3), allMdates(season~=3) );
+% [ TslopesGRACEnotSummer ] = linearMap( imjset(:,:,season~=3 & year(allMdates)>=2003),...
+%     allMdates(season~=3 & year(allMdates)>=2003));
+% [ TslopesGRACEnotSummer10 ] = linearMap( imjset(:,:,season~=3 & year(allMdates)>=2003& year(allMdates)<=2012),...
+%     allMdates(season~=3 & year(allMdates)>=2003& year(allMdates)<=2012));
+[ TslopesGRACEnotSummer5 ] = linearMap( imjset(:,:,season~=3 & year(allMdates)>=2013& year(allMdates)<=2017),...
+    allMdates(season~=3 & year(allMdates)>=2013& year(allMdates)<=2017));
+
+% save(fullfile(matDir,'tslopes'),'TslopesFull','TslopesFullnotSummer',...
+%     'TslopesFullSummer','TslopesGRACE10','TslopesGRACEnotSummer10',...
+%     'TslopesGRACESummer10','TslopesGRACE','TslopesGRACEnotSummer',...
+%     'TslopesGRACESummer','TslopesGRACESummer5');
+
 %% SLOPE IMAGE
 ax5 = figure(5);
 clf
-imj = Tslopes*365*10;
+sth = suptitle('T2M Trends Over The Greenland Ice Sheet [\circC per decade]');
+sth.Position = sth.Position + [0 0.04 0];
+set(gcf,'Position',[1 91 1089 607])
+imj = {TslopesFull,TslopesFullnotSummer,TslopesFullSummer,...
+    TslopesGRACE10,TslopesGRACEnotSummer10,TslopesGRACESummer10,...
+    TslopesGRACE,TslopesGRACEnotSummer,TslopesGRACESummer10};
+capY = {'1980-2017','2003-2012','2003-2017'};
+capS = {'All Seasons','Fall/Winter/Spring','Summer'};
+for i = 1:9
+    % PLOT
+    if i < 4
+        subplot(3,4,i)
+    elseif i < 7 
+        subplot(3,4,i+1)
+    else
+        subplot(3,4,i+2)
+    end
+    hold on
+    thisimj = interp2(pM.X,pM.Y,imj{i}'.*365.*10,GRACEX,GRACEY);
+    
+    fill(pG.gx./resamprate+0.5,pG.gy./resamprate+0.5,[0.6 0.6 0.6],'EdgeColor','none')
+    hold on
+    plot(pG.bx./resamprate+0.5,pG.by./resamprate+0.5,'--k','linewidth',0.2)
+    set(gca,'ydir','reverse')
+    
+    imagesc(thisimj,'AlphaData',~isnan(thisimj));
+%     if any(i == 1:2)
+%     end
+    axis off
+    colormap(ax5,jet(20))
+    caxis([prctile(thisimj(:),1), prctile(thisimj(:),99)])
+    cb = colorbar;
+    if abs(diff(minmax(cb.Ticks)))> 1
+        cb.Ticks = [-2:0.4:2];
+    elseif abs(diff(minmax(cb.Ticks)))>0.5
+        cb.Ticks = [-2:0.2:2];
+    else
+        cb.Ticks = [-2:0.05:2];
+    end
+    cb.Position = cb.Position + 1e-10;
+%     ylabel(cb, '\circC per decade');
+%     if any(i == 1:3)
+%         capy = capY{1};
+%     elseif any(i == 4:6)
+%         capy = capY{2};
+%     else
+%         capy = capY{3};
+%     end
+%     if any(i == [1 4 7])
+%         caps = capS{1};
+%     elseif any(i == [2 5 8])
+%         caps = capS{2};
+%     else
+%         caps = capS{3};
+%     end
+%     th = title(sprintf('T2M Trend %s, %s',capy,caps))
+    if any(i == 1:3)
+        ttlh = title(capS{i});
+        ttlh.Position = ttlh.Position+[0 -10 0];
+    end
+    
+    if any(i == [1 4 7])
+        txt = sprintf('\\bf{%s}',capY{i==[1 4 7]});
+        txth = text(0,100,txt,'fontsize',11);
+        txth.Rotation = 90;
+    end
+end
 
-imj = interp2(pM.X,pM.Y,imj',GRACEX,GRACEY);
 
-
-fill(pG.gx./resamprate+0.5,pG.gy./resamprate+0.5,[0.6 0.6 0.6],'EdgeColor','none')
+subplot(3,4,4)
 hold on
-plot(pG.bx./resamprate+0.5,pG.by./resamprate+0.5,'--k','linewidth',0.2)
-set(gca,'ydir','reverse')
+scatter(TslopesFull(:),TslopesFullSummer(:),'x')
+scatter(TslopesFull(:),TslopesFullnotSummer(:),'+')
 
+% scatter(Aall,Asum,'x')
+% scatter(Aall,Anot,'+')
+axis([-0.73 1 -0.73 1]/3650)
+axis square %off
+refline(1,0)
+set(gca,'xticklabels',round(xticks*365*10,2),'yticklabels',round(yticks*365*10,2))
+xlabel('all seasons')
+ylabel('summer/non-summer')
 
-imagesc(imj,'AlphaData',~isnan(imj));
+subplot(3,4,8)
+hold on
+scatter(TslopesGRACE10(:),TslopesGRACESummer10(:),'x')
+scatter(TslopesGRACE10(:),TslopesGRACEnotSummer10(:),'+')
+axis([-4 2.2 -4 2.2]/3650)
+axis square %off
+refline(1,0)
+set(gca,'xticklabels',xticks*365*10,'yticklabels',round(yticks*365*10,2))
 
+xlabel('all seasons')
+ylabel('summer/non-summer')
 
-axis off
-colormap(ax5,bluewhitered(100,0))
-cb = colorbar;
-ylabel(cb, '\circC per decade');
-title('Near-surface 2M Air Temperature Trend 2003-2017')
+subplot(3,4,12)
+hold on
+scatter(TslopesGRACE(:),TslopesGRACESummer(:),'x')
+scatter(TslopesGRACE(:),TslopesGRACEnotSummer(:),'+')
+axis([-2.2 0.8 -2.2 0.8]/3650)
+axis square %off
+refline(1,0)
+refline(1,0)
+set(gca,'xticklabels',xticks*365*10,'yticklabels',round(yticks*365*10,2))
+
+xlabel('all seasons')
+ylabel('summer/non-summer')
+
+lgd = legend('all vs summer','all vs non-summer');
+% lgd.Orientation = 'horizontal';
+lgd.Position = [0.8432 0.1415 0.0902 0.0896];
+%%
+figure(6)
+clf
+hold on
+% 
+% Gsum = (TslopesGRACESummer(:)-nanmean(TslopesGRACESummer(:)))./nanstd(TslopesGRACESummer(:));
+% Gall = (TslopesGRACE(:)-nanmean(TslopesGRACE(:)))./nanstd(TslopesGRACE(:));
+% Gnot = (TslopesGRACEnotSummer(:)-nanmean(TslopesGRACEnotSummer(:)))./nanstd(TslopesGRACEnotSummer(:));
+% 
+% Asum = (TslopesFullSummer(:)-nanmean(TslopesFullSummer(:)))./nanstd(TslopesFullSummer(:));
+% Aall = (TslopesFull(:)-nanmean(TslopesFull(:)))./nanstd(TslopesFull(:));
+% Anot = (TslopesFullnotSummer(:)-nanmean(TslopesFullnotSummer(:)))./nanstd(TslopesFullnotSummer(:));
+% 
+% scatter(Asum,Aall)
+% scatter(Asum,Gsum)
+% scatter(Anot,Aall)
+% scatter(Gnot,Gall)
+% scatter(TslopesFullnotSummer(:),TslopesFull(:))
+scatter(TslopesGRACESummer(:),TslopesFullSummer(:))
+% scatter(TslopesGRACESummer(:),TslopesGRACE(:))
+% axis([-1 2.5 -1 2.5]*1E-4)
+axis square
+refline(1,0)
+
 %% PLOT MEAN T PER REGION
 load(fullfile(datadir,'comparemassMerra'),'subREG','indexICE','indexICEmerra','indexICEnan',...
     'indexGL','indexGLnan','GRACEX','GRACEY','resamp','resamprate')
@@ -364,7 +527,8 @@ grid on
 %   meanT(day) <=   273.16 K    --> 0
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 meltThreshold = 273.16;
-allmeltMap = ST.data >= 269;
+meltThreshold = 270;
+allmeltMap = T2M.data >= meltThreshold;
 
 %% SHOW TOTAL MELT DAYS OVER GRACE
 GRACEmeltMap = allmeltMap(:,:,find(firstdate:enddate == startdate):end);
@@ -383,7 +547,9 @@ load(fullfile(matDir,'projectMERRAGL'),'Flon2x','Flat2y','gx','gy','bx',...
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 figure(1)
 clf
-imj = totalmelt./size(allmeltMap,3).*GRISnan';
+GRISmerranan = double(indexICEmerra);
+GRISmerranan(~indexICEmerra) = nan;
+imj = totalmelt./size(allmeltMap,3).*GRISmerranan';
 imPlot(imj)
 hold on
 plot(bx,by,'k--')
@@ -394,6 +560,7 @@ colorbar('eastoutside')
 axis tight
 
 %% CALCULATE AND PLOT MONTHLY ANOMALY
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %   CALCULATE MONTHLY ANOMALY
@@ -413,7 +580,7 @@ cax = [0 1];
 
 for m = 1:12
     subplot(4,3,m)
-    imj = avgMonthMelt(:,:,m).*GRISnan';
+    imj = avgMonthMelt(:,:,m).*GRISmerranan';
     imPlot(imj,'jet',cax)
     hold on
     plot(bx,by,'k--')
@@ -444,17 +611,35 @@ for i = 1:length(y)
     thisYMelt = sum(normMeltMap(:,:,year(alldates)==thisYear),3);
     
     total(i) = sum(thisYMelt(:));
-    subplot(4,4,i)
-    imj = thisYMelt.*GRISnan';
-    imPlot(imj,parula,cax)
+    
+    subplot(3,5,i)
+    
+    imj = thisYMelt;
+    
+    thisimj = interp2(pM.X,pM.Y,imj',GRACEX,GRACEY);
+    
+    fill(pG.gx./resamprate+0.5,pG.gy./resamprate+0.5,[0.6 0.6 0.6],'EdgeColor','none')
     hold on
-    plot(bx,by,'k--')
-    plot(gx,gy,'k')
+    plot(pG.bx./resamprate+0.5,pG.by./resamprate+0.5,':k','linewidth',0.2)
+    set(gca,'ydir','reverse')
+    
+    imagesc(thisimj,'AlphaData',~isnan(GRISnan));
+    
+%     imPlot(imj,parula,cax)
+    hold on
+%     plot(bx,by,'k--')
+%     plot(gx,gy,'k')
     title(num2str(thisYear))
-    colorbar('eastoutside')
-    axis tight
-    axis off
+    caxis(cax)
+%     colorbar('eastoutside')
+    axis tight  off
 end
 
-suptitle('Melt days anomaly by year, normalized by monthly mean')
+suptitle('Melt days (daily mean T2M > 270^{\circ}K) anomaly by year, normalized by monthly mean')
 
+axes('Position',[0.9 0.3 0.02 0.4])
+axis off
+caxis(cax)
+cb = colorbar;
+cb.Position = cb.Position + [0 0 0.01 0];
+ylabel(cb,'# days, normalized by monthly mean','fontsize',10)

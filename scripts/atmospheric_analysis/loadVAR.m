@@ -19,14 +19,19 @@ startdate = datenum(2003,01,01);
 enddate = datenum(2017,12,31);
 alldates = startdate:enddate;
 
-dataset = 'tavg1_2d_slv_Nx';
-dataset = 'tavg1_2d_rad_Nx';
-dir = fullfile(merra_dir, 'MerraRadiation');
+% dataset = 'tavg1_2d_slv_Nx';
+% dataset = 'instM_2d_asm_Nx';
+% dataset = 'tavg1_2d_rad_Nx';
+% dataset = 'statM_2d_slv_Nx';
+% dir = fullfile(merra_dir, 'MerraRadiation');
+dir = fullfile(merra_dir, 'MerraGrnlandTMEAN');
+variable = '';
+matfilename = fullfile(matDir,sprintf('%s2003-2017',variable));
 
 if lengthyProcessFlag
 [ data, t, spacelim ] = ...
-    getMerra2VAR( alldates, 'CLDTOT', dir ,dataset);
+    getMerra2VAR( alldates, variable, dir ,dataset);
 squeeze(data);
-save(fullfile(matDir,'CLDTOT2003-2017'),'data','t','spacelim')
+save(matfilename,'data','t','spacelim')
 end
 

@@ -78,15 +78,22 @@ plot([x1,x2,x3,x4],[y1,y2,y3,y4],'o',...
 plot(gx,gy,'k-')
 plot(bx,by,'k:')
 linetik = [0 2.^(1:n)]+0.5;
-tik = [0 2.^(5:n)]+0.5;
-tiklab = [1 2.^(5:n)];
+% tik = [0 2.^(5:n)]+0.5;
+% tiklab = [1 2.^(5:n)];
+
+tik = (0:32:2^(n))+0.5;
+tiklab = (tik-0.5)/2;
+
+
 set(gca,'xtick',tik,'xticklabels',tiklab)
 set(gca,'ytick',tik,'yticklabels',tiklab)
-plotline1 = [linetik; linetik];
-plotline2 = [ones(1,n+1); [linetik(2:end),linetik(end)]];
-plot(plotline1,plotline2,'k')
-plot(plotline2,plotline1,'k')
+% plotline1 = [linetik; linetik];
+% plotline2 = [ones(1,n+1); [linetik(2:end),linetik(end)]];
+% plot(plotline1,plotline2,'k')
+% plot(plotline2,plotline1,'k')
 title('Image basis')
+grid 'on'
+% set(gca,'xminorgrid','on','yminorgrid','on')
 
 end
 
