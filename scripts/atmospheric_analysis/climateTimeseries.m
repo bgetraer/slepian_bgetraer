@@ -68,7 +68,7 @@ clf
 hold on
 
 % PLOT THE MEAN T2M OVER GREENLAND
-tdata = squeeze(Temp.T2MMEAN).*GRISnan';
+tdata = squeeze(Temp.T2MMEAN).*GRISmerranan';
 tdatam = squeeze(nanmean(nanmean(tdata)));
 [tdatama, tdatamonth] = anomMonth(tdatam,allMdates);
 
@@ -139,7 +139,7 @@ legend([hT6,hT10,hTf,hNH6,hNH10,hNHf],...
 % % ax.Position = [0.7813    0.1100    0.1237    0.8150];
 % % ax.Position = [0.1300  0.3587 0.6122 0.5663];
 % ax.Position = [0.7813    0.3587  0.1237 0.5663];
-% 
+% d
 % hold on
 % xlim([-4 4])
 % histogram(tdatama(ind80s),15)

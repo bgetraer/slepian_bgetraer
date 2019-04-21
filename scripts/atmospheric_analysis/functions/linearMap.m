@@ -1,4 +1,4 @@
-function [ slopes,F ] = linearMap( data, alldates, degree )
+function [ slopes,F,R ] = linearMap( data, alldates, degree )
 %LINEARMAP Takes a 2d matrix timeseries, removes seasonal periodic trend,
 % returns map of best fit linear model coefficient at each pixel 
 %   Detailed explanation goes here
@@ -34,6 +34,7 @@ meandatavec = nanmean(datavec,2);
 ml = zeros(degree+1,size(datamat,1)*size(datamat,2));
 
 F = nan(size(datamat));
+R = nan(size(datamat,1),size(datamat,2));
 [rows,cols] = find(F);
 % go through each point on the map, correct for seasonal trend, take linear
 % model
@@ -44,6 +45,7 @@ for i = 1:size(datamat,1)*size(datamat,2)
         x = alldates;
         y = datavec(i,:)-meandatavec(i)-fp';
         [ml(:,i),f] = linear_m(x,y,degree);
+        R(rows(i),cols(i)) = 1 - var(y(:)-f(:))./var(y(:));
         F(rows(i),cols(i),:) = f;
     end
 end

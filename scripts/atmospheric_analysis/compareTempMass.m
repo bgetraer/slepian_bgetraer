@@ -164,12 +164,13 @@ imPlot(sum(meltData.allmeltMap,3),[])
 % m2slope0317 = linearMap(massanom(resamp,resamp,:),...
 %     massData.thedates,2);
 
-%% GRACE mass trend VS T2M trend 2003--2017
+%% GRACE mass trend VS T2M trend 2003--2012
 figure(1)
 clf
 
-ax1 = subplot(1,4,1:2);
-load(fullfile(matDir,'tslopes'),'TslopesGRACESummer10');
+ax1 = subplot(2,4,1:2);
+% load(fullfile(matDir,'tslopes'),'TslopesGRACESummer10');
+
 imj = TslopesGRACESummer10;
 thisimj = interp2(pM.X,pM.Y,imj'.*365.*10,GRACEX,GRACEY);
 
@@ -191,6 +192,31 @@ ylabel(cb,'\circC per decade')
 
 title('Summer T2M trend, 2003-2012')
 
+
+ax1 = subplot(2,4,5:6);
+% load(fullfile(matDir,'tslopes'),'TslopesGRACESummer10');
+
+imj = R;
+thisimj = interp2(pM.X,pM.Y,imj',GRACEX,GRACEY);
+
+fill(pG.gx./resamprate+0.5,pG.gy./resamprate+0.5,[0.6 0.6 0.6],'EdgeColor','none')
+hold on
+plot(pG.bx./resamprate+0.5,pG.by./resamprate+0.5,':k','linewidth',0.2)
+plot(pG.gx./resamprate+0.5,pG.gy./resamprate+0.5,'-k','linewidth',0.2)
+set(gca,'ydir','reverse')
+
+imagesc(thisimj,'AlphaData',~isnan(thisimj));
+
+axis square off
+colormap(ax1,jet(20))
+caxis([prctile(thisimj(:),1), prctile(thisimj(:),99)])
+cb = colorbar;
+
+% cb.Ticks = [-2:.2:2];
+ylabel(cb,'variance reduction')
+
+title('Summer T2M trend R^2, 2003-2012')
+
 subplot(1,4,3:4)
 
 imj = (m2slope0312)*365^2;
@@ -205,7 +231,79 @@ cmap = flip(jet(100));
 colormap(cmap(1:70,:,:))
 cb = colorbar;
 ylabel(cb,'mm/yr^2 w.e.')
-title('mass anomaly acceleration, 2003-2012')
+ttlh = title('mass anomaly acceleration, 2003-2012');
+ttlh.Position = ttlh.Position + [15 0 0]
+
+%% GRACE mass trend VS T2M trend 2003--2017
+figure(1)
+clf
+
+ax1 = subplot(2,4,1:2);
+% load(fullfile(matDir,'tslopes'),'TslopesGRACESummer10');
+
+imj = TslopesGRACESummer;
+thisimj = interp2(pM.X,pM.Y,imj'.*365.*10,GRACEX,GRACEY);
+
+fill(pG.gx./resamprate+0.5,pG.gy./resamprate+0.5,[0.6 0.6 0.6],'EdgeColor','none')
+hold on
+plot(pG.bx./resamprate+0.5,pG.by./resamprate+0.5,':k','linewidth',0.2)
+plot(pG.gx./resamprate+0.5,pG.gy./resamprate+0.5,'-k','linewidth',0.2)
+set(gca,'ydir','reverse')
+
+imagesc(thisimj,'AlphaData',~isnan(thisimj));
+
+axis square off
+colormap(ax1,jet(20))
+caxis([prctile(thisimj(:),1), prctile(thisimj(:),99)])
+cb = colorbar;
+
+cb.Ticks = [-2:.2:2];
+ylabel(cb,'\circC per decade')
+
+title('Summer T2M trend, 2003-2012')
+
+
+ax1 = subplot(2,4,5:6);
+% load(fullfile(matDir,'tslopes'),'TslopesGRACESummer10');
+
+imj = Rsummer;
+thisimj = interp2(pM.X,pM.Y,imj',GRACEX,GRACEY);
+
+fill(pG.gx./resamprate+0.5,pG.gy./resamprate+0.5,[0.6 0.6 0.6],'EdgeColor','none')
+hold on
+plot(pG.bx./resamprate+0.5,pG.by./resamprate+0.5,':k','linewidth',0.2)
+plot(pG.gx./resamprate+0.5,pG.gy./resamprate+0.5,'-k','linewidth',0.2)
+set(gca,'ydir','reverse')
+
+imagesc(thisimj,'AlphaData',~isnan(thisimj));
+
+axis square off
+colormap(ax1,jet(20))
+caxis([prctile(thisimj(:),1), prctile(thisimj(:),99)])
+cb = colorbar;
+
+% cb.Ticks = [-2:.2:2];
+ylabel(cb,'variance reduction')
+
+title('Summer T2M trend R^2, 2003-2012')
+
+subplot(1,4,3:4)
+
+imj = (m2slope0317)*365^2;
+
+imagesc(imj,'AlphaData',~isnan(imj));
+axis square off
+hold on
+plot(ice.GRACE.X/2+0.5,ice.GRACE.Y/2+0.5,'k','linewidth',1.5)
+plot(pG.bx/2+0.5,pG.by/2+0.5,':k','linewidth',0.5)
+plot(pG.gx/2+0.5,pG.gy/2+0.5,'k','linewidth',0.5)
+caxis([-53.9705 17.4481]);
+cmap = flip(jet(100));
+colormap(cmap(1:70,:,:))
+cb = colorbar;
+ylabel(cb,'mm/yr^2 w.e.')
+ttlh = title('mass anomaly acceleration, 2003-2012');
+ttlh.Position = ttlh.Position + [15 0 0]
 
 %% SHOW MEAN CLIMATE VARIABLES VS MASS LOSS OVER GRACE
 t2m = imgaussfilt(T2M.data,1);
